@@ -45,6 +45,8 @@ The background work takes about 2 s right after the page appears. Its own main-t
 
 **Trade-off:** every visitor downloads the night sky (1.7 MB) in the background, including those who never switch to Night.
 
+**Still to confirm:** that the Day view looks exactly the same after the background warm-up. One test came out bit-for-bit identical, but the browser pane went hidden during it, so it isn't certain the redraw happened. The shaders are byte-for-byte the same as before; 3b only changes *when* they are compiled.
+
 **Not done yet:** fixes 6–7 and the tidy-ups.
 
 ---
