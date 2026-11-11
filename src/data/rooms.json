@@ -1,0 +1,1609 @@
+{
+"rooms": [
+{
+"id": "lobby",
+"name": "Private Lift Lobby",
+"zone": "arrival",
+"icon": "lift",
+"poly": [
+[
+1100.0,
+915.0
+],
+[
+1265.0,
+915.0
+],
+[
+1265.0,
+720.0
+],
+[
+1630.0,
+720.0
+],
+[
+1630.0,
+595.0
+],
+[
+1265.0,
+595.0
+],
+[
+1265.0,
+440.0
+],
+[
+1100.0,
+440.0
+]
+],
+"area": 34.2,
+"dims": [
+9.1,
+8.2
+],
+"pin": [
+1546,
+656
+],
+"cams": [
+{
+"n": 2,
+"name": "Lift Lobby",
+"x": 1546,
+"y": 656
+},
+{
+"n": 1,
+"name": "Lift Car",
+"x": 1543,
+"y": 501
+}
+],
+"thumb": "thumbs/lobby.jpg",
+"floor": "Herringbone limestone",
+"ceiling": 3.2,
+"info": "A private lift opens straight into the residence. Herringbone limestone, bronze lift portals and backlit onyx niches set the tone on arrival.",
+"features": [
+"Two private passenger lifts",
+"Service lift to the back of house",
+"Backlit onyx feature niches"
+]
+},
+{
+"id": "living",
+"name": "Grand Living",
+"zone": "living",
+"icon": "sofa",
+"poly": [
+[
+1722.0,
+420.0
+],
+[
+1722.0,
+960.0
+],
+[
+2100.0,
+960.0
+],
+[
+2100.0,
+420.0
+]
+],
+"area": 59.7,
+"dims": [
+6.5,
+9.3
+],
+"pin": [
+1821,
+656
+],
+"cams": [
+{
+"n": 4,
+"name": "Grand Living 02",
+"x": 1821,
+"y": 656
+},
+{
+"n": 3,
+"name": "Grand Living 01",
+"x": 1736,
+"y": 656
+},
+{
+"n": 12,
+"name": "Grand Living 03",
+"x": 2045,
+"y": 693
+}
+],
+"thumb": "thumbs/living.jpg",
+"floor": "Wide-plank oak, smoked",
+"ceiling": 3.4,
+"info": "The heart of the home: two conversation groups under a 3.4 m ceiling, framed by curved full-height glazing that opens to the wrap-around terrace.",
+"features": [
+"Floor-to-ceiling curved glazing",
+"Walnut wine and display wall",
+"Opens to the Living Terrace"
+]
+},
+{
+"id": "living-terrace",
+"name": "Living Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+2332.1,
+960.0
+],
+[
+2318.0,
+921.0
+],
+[
+2298.0,
+880.0
+],
+[
+2268.0,
+830.0
+],
+[
+2251.0,
+791.0
+],
+[
+2236.0,
+734.0
+],
+[
+2232.0,
+703.0
+],
+[
+2231.0,
+671.0
+],
+[
+2235.0,
+623.0
+],
+[
+2248.0,
+570.0
+],
+[
+2266.0,
+526.0
+],
+[
+2296.0,
+476.0
+],
+[
+2322.3,
+420.0
+],
+[
+2178.0,
+420.0
+],
+[
+2101.0,
+520.0
+],
+[
+2101.0,
+830.0
+],
+[
+2178.0,
+925.0
+],
+[
+2178.0,
+960.0
+]
+],
+"area": 22.7,
+"dims": [
+4.0,
+9.3
+],
+"pin": [
+2199,
+694
+],
+"cams": [
+{
+"n": 13,
+"name": "Grand Living Balcony",
+"x": 2199,
+"y": 694
+}
+],
+"thumb": "thumbs/living-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "A deep, planted terrace with clear glass balustrades and skyline views across the park.",
+"features": [
+"Frameless glass balustrade",
+"Built-in planters",
+"Outdoor lighting"
+]
+},
+{
+"id": "dining",
+"name": "Formal Dining",
+"zone": "living",
+"icon": "dining",
+"poly": [
+[
+2178.0,
+205.0
+],
+[
+1722.0,
+205.0
+],
+[
+1722.0,
+420.0
+],
+[
+2178.0,
+420.0
+]
+],
+"area": 29.1,
+"dims": [
+7.9,
+3.7
+],
+"pin": [
+2032,
+396
+],
+"cams": [
+{
+"n": 11,
+"name": "Dining 02",
+"x": 2032,
+"y": 396
+},
+{
+"n": 5,
+"name": "Dining 01",
+"x": 1795,
+"y": 401
+},
+{
+"n": 8,
+"name": "Dining 03",
+"x": 2126,
+"y": 290
+}
+],
+"thumb": "thumbs/dining.jpg",
+"floor": "Wide-plank oak, smoked",
+"ceiling": 3.4,
+"info": "An oval table for twelve beneath sculptural pendants, between the show kitchen and the living room.",
+"features": [
+"Seats twelve",
+"Backlit stone feature wall",
+"Opens to the Dining Terrace"
+]
+},
+{
+"id": "kitchen",
+"name": "Show Kitchen",
+"zone": "living",
+"icon": "kitchen",
+"poly": [
+[
+2178.0,
+62.2
+],
+[
+2052.4,
+40.0
+],
+[
+1722.0,
+40.0
+],
+[
+1722.0,
+205.0
+],
+[
+2178.0,
+205.0
+]
+],
+"area": 20.7,
+"dims": [
+7.9,
+2.8
+],
+"pin": [
+1907,
+84
+],
+"cams": [
+{
+"n": 7,
+"name": "Gourmet Kitchen",
+"x": 1907,
+"y": 84
+},
+{
+"n": 6,
+"name": "Kitchen Hallway",
+"x": 1753,
+"y": 229
+}
+],
+"thumb": "thumbs/kitchen.jpg",
+"floor": "Wide-plank oak, smoked",
+"ceiling": 3.2,
+"info": "A statement island in Patagonia quartzite with an integrated cooktop and sink, backed by full-height dark-oak joinery.",
+"features": [
+"3.6 m quartzite island",
+"Integrated appliances",
+"Separate service kitchen behind"
+]
+},
+{
+"id": "dining-terrace",
+"name": "Dining Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+2322.3,
+420.0
+],
+[
+2341.0,
+363.0
+],
+[
+2351.0,
+309.0
+],
+[
+2354.0,
+270.0
+],
+[
+2352.0,
+218.0
+],
+[
+2346.0,
+190.0
+],
+[
+2337.0,
+165.0
+],
+[
+2317.0,
+129.0
+],
+[
+2299.0,
+106.0
+],
+[
+2277.0,
+85.0
+],
+[
+2258.0,
+71.0
+],
+[
+2235.0,
+58.0
+],
+[
+2216.0,
+50.0
+],
+[
+2178.0,
+39.7
+],
+[
+2178.0,
+420.0
+]
+],
+"area": 16.6,
+"dims": [
+3.0,
+6.6
+],
+"pin": [
+2298,
+167
+],
+"cams": [
+{
+"n": 9,
+"name": "Dining 04 Balcony",
+"x": 2298,
+"y": 167
+}
+],
+"thumb": "thumbs/dining-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "Al fresco dining for six on the north-east corner, steps from the show kitchen.",
+"features": [
+"Round stone dining table",
+"Planters with olive trees",
+"Morning sun"
+]
+},
+{
+"id": "service-kitchen",
+"name": "Service Kitchen",
+"zone": "service",
+"icon": "kitchen",
+"poly": [
+[
+1380.0,
+95.0
+],
+[
+1380.0,
+340.0
+],
+[
+1690.0,
+340.0
+],
+[
+1690.0,
+95.0
+]
+],
+"area": 18.8,
+"dims": [
+5.3,
+4.2
+],
+"pin": [
+1551,
+226
+],
+"cams": [
+{
+"n": 10,
+"name": "Service Kitchen",
+"x": 1551,
+"y": 226
+}
+],
+"thumb": "thumbs/service-kitchen.jpg",
+"floor": "Honed limestone",
+"ceiling": 2.9,
+"info": "A fully equipped back-of-house kitchen with its own service lift and entry.",
+"features": [
+"Gas cooktop and wall ovens",
+"Full-height refrigeration",
+"Service lift access"
+]
+},
+{
+"id": "salon",
+"name": "Salon",
+"zone": "living",
+"icon": "glass",
+"poly": [
+[
+2178.0,
+960.0
+],
+[
+1722.0,
+960.0
+],
+[
+1722.0,
+1310.0
+],
+[
+2066.6,
+1310.0
+],
+[
+2178.0,
+1286.8
+]
+],
+"area": 45.8,
+"dims": [
+7.9,
+6.0
+],
+"pin": [
+1798,
+988
+],
+"cams": [
+{
+"n": 17,
+"name": "Salon 01 Hallway",
+"x": 1798,
+"y": 988
+},
+{
+"n": 14,
+"name": "Salon 03",
+"x": 2064,
+"y": 1063
+},
+{
+"n": 16,
+"name": "Salon 02",
+"x": 1783,
+"y": 1257
+}
+],
+"thumb": "thumbs/salon.jpg",
+"floor": "Wide-plank oak, smoked",
+"ceiling": 3.4,
+"info": "A softer, intimate lounge around a curved sofa and a glass cocktail table, with a bar console along the glazing.",
+"features": [
+"Curved bespoke sofa",
+"Bar console",
+"Opens to the Salon Terrace"
+]
+},
+{
+"id": "salon-terrace",
+"name": "Salon Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+2178.0,
+1312.8
+],
+[
+2214.0,
+1303.0
+],
+[
+2231.0,
+1296.0
+],
+[
+2257.0,
+1282.0
+],
+[
+2282.0,
+1263.0
+],
+[
+2313.0,
+1229.0
+],
+[
+2337.0,
+1187.0
+],
+[
+2347.0,
+1158.0
+],
+[
+2352.0,
+1134.0
+],
+[
+2354.0,
+1112.0
+],
+[
+2353.0,
+1062.0
+],
+[
+2346.0,
+1012.0
+],
+[
+2332.1,
+960.0
+],
+[
+2178.0,
+960.0
+]
+],
+"area": 15.4,
+"dims": [
+3.0,
+6.1
+],
+"pin": [
+2274,
+1063
+],
+"cams": [
+{
+"n": 15,
+"name": "Salon 04 Balcony",
+"x": 2274,
+"y": 1063
+}
+],
+"thumb": "thumbs/salon-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "An outdoor lounge with woven loungers on a terracotta rug, catching the afternoon light.",
+"features": [
+"Outdoor lounge for six",
+"Planters",
+"Sunset views"
+]
+},
+{
+"id": "study",
+"name": "Study",
+"zone": "private",
+"icon": "study",
+"poly": [
+[
+1700.0,
+1310.0
+],
+[
+1700.0,
+1080.0
+],
+[
+1310.0,
+1080.0
+],
+[
+1310.0,
+1266.1
+],
+[
+1412.6,
+1292.3
+],
+[
+1508.6,
+1310.0
+]
+],
+"area": 18.3,
+"dims": [
+6.7,
+4.0
+],
+"pin": [
+1505.0,
+1173.0
+],
+"cams": [],
+"thumb": null,
+"floor": "Wide-plank oak, smoked",
+"ceiling": 3.0,
+"info": "A quiet room off the salon, ready to be fitted as a study, media room or guest suite.",
+"features": [
+"Angled feature wall",
+"Built-in storage",
+"Facade glazing"
+]
+},
+{
+"id": "flex",
+"name": "Flex Lounge",
+"zone": "living",
+"icon": "lounge",
+"poly": [
+[
+1300.0,
+930.0
+],
+[
+1040.0,
+930.0
+],
+[
+1040.0,
+1240.0
+],
+[
+1046.0,
+1240.0
+],
+[
+1046.0,
+1228.0
+],
+[
+1300.0,
+1228.0
+]
+],
+"area": 20.2,
+"dims": [
+4.5,
+5.3
+],
+"pin": [
+1205,
+976
+],
+"cams": [
+{
+"n": 18,
+"name": "Hallway Flex Space",
+"x": 1205,
+"y": 976
+},
+{
+"n": 19,
+"name": "Flex Space",
+"x": 1183,
+"y": 1191
+}
+],
+"thumb": "thumbs/flex.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.2,
+"info": "A reading lounge at the crossing of the gallery, with a glass-walled flex room beyond that can be a family room or office.",
+"features": [
+"Sliding glass partition",
+"Reading corner",
+"South light"
+]
+},
+{
+"id": "gallery",
+"name": "Gallery",
+"zone": "circulation",
+"icon": "hall",
+"poly": [
+[
+600.0,
+930.0
+],
+[
+430.0,
+930.0
+],
+[
+430.0,
+1012.0
+],
+[
+1040.0,
+1012.0
+],
+[
+1040.0,
+930.0
+],
+[
+690.0,
+930.0
+],
+[
+690.0,
+250.0
+],
+[
+600.0,
+250.0
+]
+],
+"area": 30.4,
+"dims": [
+10.5,
+13.1
+],
+"pin": [
+633,
+927
+],
+"cams": [
+{
+"n": 22,
+"name": "Hallway 01 Primary Bedroom",
+"x": 633,
+"y": 927
+},
+{
+"n": 20,
+"name": "Hallway 02 4th Bedroom",
+"x": 784,
+"y": 992
+}
+],
+"thumb": "thumbs/gallery.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.0,
+"info": "A long gallery links the bedroom wing to the living spaces, with full-height doors in dark oak.",
+"features": [
+"Art lighting",
+"Full-height doors",
+"Hidden storage"
+]
+},
+{
+"id": "bed4",
+"name": "Bedroom 4",
+"zone": "private",
+"icon": "bed",
+"poly": [
+[
+1040.0,
+1012.0
+],
+[
+845.0,
+1012.0
+],
+[
+845.0,
+1310.7
+],
+[
+934.5,
+1294.9
+],
+[
+1040.0,
+1268.1
+]
+],
+"area": 15.2,
+"dims": [
+3.4,
+5.2
+],
+"pin": [
+942.5,
+1140.0
+],
+"cams": [
+{
+"n": 21,
+"name": "4th Bedroom",
+"x": 793,
+"y": 1096
+},
+{
+"n": 20,
+"name": "Hallway 02 4th Bedroom",
+"x": 784,
+"y": 992
+}
+],
+"thumb": "thumbs/bed4.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.0,
+"info": "A guest bedroom with a panelled headboard wall, a reading chair and a desk along the curved facade.",
+"features": [
+"Queen bed",
+"Built-in wardrobe",
+"En-suite shower room"
+]
+},
+{
+"id": "primary",
+"name": "Primary Bedroom",
+"zone": "private",
+"icon": "bed",
+"poly": [
+[
+432.0,
+1320.0
+],
+[
+432.0,
+850.0
+],
+[
+178.0,
+850.0
+],
+[
+178.0,
+1286.1
+],
+[
+242.9,
+1301.6
+],
+[
+332.2,
+1316.7
+],
+[
+359.1,
+1320.0
+]
+],
+"area": 32.2,
+"dims": [
+4.4,
+8.1
+],
+"pin": [
+345,
+931
+],
+"cams": [
+{
+"n": 25,
+"name": "Primary Bedroom 03",
+"x": 345,
+"y": 931
+},
+{
+"n": 26,
+"name": "Primary Bedroom 04",
+"x": 174,
+"y": 1033
+},
+{
+"n": 28,
+"name": "Primary bedroom 05",
+"x": 328,
+"y": 1216
+},
+{
+"n": 23,
+"name": "Primary Bedroom Entrance",
+"x": 509,
+"y": 927
+}
+],
+"thumb": "thumbs/primary.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.2,
+"info": "A corner suite with its own lounge, a bowed upholstered headboard wall and a private terrace on two sides.",
+"features": [
+"King bed and lounge",
+"Dressing room and ensuite",
+"Private terrace"
+]
+},
+{
+"id": "primary-bath",
+"name": "Primary Ensuite",
+"zone": "private",
+"icon": "bath",
+"poly": [
+[
+432.0,
+1000.0
+],
+[
+432.0,
+1320.0
+],
+[
+640.0,
+1320.0
+],
+[
+640.0,
+1000.0
+]
+],
+"area": 17.3,
+"dims": [
+3.6,
+5.5
+],
+"pin": [
+509,
+1239
+],
+"cams": [
+{
+"n": 29,
+"name": "Primary ENsuite 01",
+"x": 509,
+"y": 1239
+},
+{
+"n": 30,
+"name": "Primary Ensuite 02",
+"x": 511,
+"y": 1067
+}
+],
+"thumb": "thumbs/primary-bath.jpg",
+"floor": "Calacatta marble",
+"ceiling": 3.0,
+"info": "Double vanity in honed stone, a freestanding tub at the window, walk-in shower and separate WCs.",
+"features": [
+"Freestanding bathtub",
+"Double vanity",
+"Walk-in rain shower"
+]
+},
+{
+"id": "primary-closet",
+"name": "Primary Dressing Room",
+"zone": "private",
+"icon": "closet",
+"poly": [
+[
+432.0,
+600.0
+],
+[
+432.0,
+860.0
+],
+[
+600.0,
+860.0
+],
+[
+600.0,
+600.0
+]
+],
+"area": 11.9,
+"dims": [
+2.9,
+4.5
+],
+"pin": [
+521,
+773
+],
+"cams": [
+{
+"n": 24,
+"name": "Primary Bedroom Closet",
+"x": 521,
+"y": 773
+}
+],
+"thumb": "thumbs/primary-closet.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.0,
+"info": "A walk-through dressing room with glass-fronted wardrobes and a stone-topped island.",
+"features": [
+"Glass-fronted wardrobes",
+"Island with drawers",
+"Shoe wall"
+]
+},
+{
+"id": "primary-terrace",
+"name": "Primary Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+178.0,
+1286.1
+],
+[
+176.0,
+1285.6
+],
+[
+175.0,
+770.0
+],
+[
+109.7,
+770.0
+],
+[
+87.0,
+828.0
+],
+[
+57.0,
+878.0
+],
+[
+41.0,
+910.0
+],
+[
+19.0,
+967.0
+],
+[
+8.0,
+1012.0
+],
+[
+3.0,
+1044.0
+],
+[
+0.0,
+1083.0
+],
+[
+1.0,
+1123.0
+],
+[
+7.0,
+1158.0
+],
+[
+15.0,
+1182.0
+],
+[
+28.0,
+1209.0
+],
+[
+54.0,
+1245.0
+],
+[
+73.0,
+1264.0
+],
+[
+94.0,
+1280.0
+],
+[
+121.0,
+1295.0
+],
+[
+142.0,
+1304.0
+],
+[
+178.0,
+1313.2
+]
+],
+"area": 21.6,
+"dims": [
+3.1,
+9.4
+],
+"pin": [
+35,
+1032
+],
+"cams": [
+{
+"n": 27,
+"name": "Primary Bedroom Balcony",
+"x": 35,
+"y": 1032
+}
+],
+"thumb": "thumbs/primary-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "A wraparound terrace with a daybed and an outdoor lounge, wrapped by planting.",
+"features": [
+"Daybed",
+"Outdoor lounge",
+"West views"
+]
+},
+{
+"id": "bed3",
+"name": "Bedroom 3",
+"zone": "private",
+"icon": "bed",
+"poly": [
+[
+219.0,
+830.0
+],
+[
+432.0,
+830.0
+],
+[
+432.0,
+555.0
+],
+[
+219.0,
+555.0
+]
+],
+"area": 15.9,
+"dims": [
+3.7,
+4.7
+],
+"pin": [
+369,
+583
+],
+"cams": [
+{
+"n": 40,
+"name": "3rd Bedroom 01",
+"x": 369,
+"y": 583
+},
+{
+"n": 42,
+"name": "3rd Bedroom 02",
+"x": 346,
+"y": 798
+},
+{
+"n": 39,
+"name": "3rd Bedroom entrance",
+"x": 500,
+"y": 582
+},
+{
+"n": 31,
+"name": "Hallway 04 3rd Bedroom",
+"x": 643,
+"y": 582
+}
+],
+"thumb": "thumbs/bed3.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.0,
+"info": "A bright bedroom with its own planted terrace, shown unfurnished.",
+"features": [
+"Planted terrace",
+"Built-in wardrobe",
+"En-suite"
+]
+},
+{
+"id": "bed3-terrace",
+"name": "Bedroom 3 Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+219.0,
+590.0
+],
+[
+175.0,
+585.0
+],
+[
+110.4,
+585.0
+],
+[
+119.0,
+623.0
+],
+[
+123.0,
+684.0
+],
+[
+117.0,
+740.0
+],
+[
+109.7,
+770.0
+],
+[
+175.0,
+770.0
+],
+[
+219.0,
+760.0
+]
+],
+"area": 5.4,
+"dims": [
+1.9,
+3.2
+],
+"pin": [
+206,
+679
+],
+"cams": [
+{
+"n": 41,
+"name": "3rd Bedroom balcony",
+"x": 206,
+"y": 679
+}
+],
+"thumb": "thumbs/bed3-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "A small planted terrace off Bedroom 3.",
+"features": [
+"Planters",
+"Glass balustrade",
+"City view"
+]
+},
+{
+"id": "bed2",
+"name": "Bedroom 2",
+"zone": "private",
+"icon": "bed",
+"poly": [
+[
+178.0,
+430.0
+],
+[
+432.0,
+430.0
+],
+[
+432.0,
+40.0
+],
+[
+290.7,
+40.0
+],
+[
+242.9,
+49.2
+],
+[
+178.0,
+66.8
+]
+],
+"area": 27.0,
+"dims": [
+4.4,
+6.7
+],
+"pin": [
+392,
+376
+],
+"cams": [
+{
+"n": 34,
+"name": "2nd Bedroom 02",
+"x": 392,
+"y": 376
+},
+{
+"n": 35,
+"name": "2nd Bedroom 03",
+"x": 189,
+"y": 227
+},
+{
+"n": 36,
+"name": "2nd Bedroom 04",
+"x": 406,
+"y": 106
+},
+{
+"n": 33,
+"name": "2nd Bedroom Entrance",
+"x": 509,
+"y": 382
+},
+{
+"n": 32,
+"name": "Hallway 05 2nd Bedroom",
+"x": 644,
+"y": 391
+}
+],
+"thumb": "thumbs/bed2.jpg",
+"floor": "Wide-plank oak, natural",
+"ceiling": 3.2,
+"info": "A second suite with a writing desk, a sculptural chaise and its own terrace and ensuite.",
+"features": [
+"King bed",
+"Writing desk",
+"Ensuite and terrace"
+]
+},
+{
+"id": "bed2-bath",
+"name": "Bedroom 2 Ensuite",
+"zone": "private",
+"icon": "bath",
+"poly": [
+[
+432.0,
+40.0
+],
+[
+432.0,
+210.0
+],
+[
+620.0,
+210.0
+],
+[
+620.0,
+40.0
+]
+],
+"area": 8.4,
+"dims": [
+3.2,
+2.9
+],
+"pin": [
+529,
+123
+],
+"cams": [
+{
+"n": 37,
+"name": "2nd Bedroom Ensuite",
+"x": 529,
+"y": 123
+}
+],
+"thumb": "thumbs/bed2-bath.jpg",
+"floor": "Calacatta marble",
+"ceiling": 3.0,
+"info": "A marble ensuite with a long vanity, walk-in shower and WC.",
+"features": [
+"Long vanity",
+"Walk-in shower",
+"Separate WC"
+]
+},
+{
+"id": "bed2-terrace",
+"name": "Bedroom 2 Terrace",
+"zone": "outdoor",
+"icon": "leaf",
+"poly": [
+[
+178.0,
+39.1
+],
+[
+138.0,
+50.0
+],
+[
+121.0,
+57.0
+],
+[
+96.0,
+71.0
+],
+[
+64.0,
+97.0
+],
+[
+39.0,
+126.0
+],
+[
+28.0,
+143.0
+],
+[
+17.0,
+165.0
+],
+[
+7.0,
+194.0
+],
+[
+2.0,
+219.0
+],
+[
+0.0,
+240.0
+],
+[
+1.0,
+288.0
+],
+[
+10.0,
+350.0
+],
+[
+19.0,
+385.0
+],
+[
+36.0,
+431.0
+],
+[
+57.0,
+474.0
+],
+[
+87.0,
+524.0
+],
+[
+102.0,
+558.0
+],
+[
+110.4,
+585.0
+],
+[
+175.0,
+585.0
+],
+[
+176.0,
+67.4
+],
+[
+178.0,
+66.8
+]
+],
+"area": 21.6,
+"dims": [
+3.1,
+9.4
+],
+"pin": [
+43,
+326
+],
+"cams": [
+{
+"n": 38,
+"name": "2nd Bedroom Balcony",
+"x": 43,
+"y": 326
+}
+],
+"thumb": "thumbs/bed2-terrace.jpg",
+"floor": "Teak-look porcelain decking",
+"ceiling": 3.2,
+"info": "A long west terrace with a lounger and an outdoor seating corner.",
+"features": [
+"Lounger",
+"Outdoor seating",
+"Planters"
+]
+}
+]
+}

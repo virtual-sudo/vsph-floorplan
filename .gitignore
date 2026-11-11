@@ -1,0 +1,8 @@
+node_modules
+dist
+work
+tour-media
+.DS_Store
+dist-artifact
+.claude/
+*.tsbuildinfo
