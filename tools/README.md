@@ -24,3 +24,13 @@ Put the inputs here first:
 
 The furniture positions (`src/data/furniture.ts`) were set by hand from
 the dressed plan. Scale is about 58 pixels per metre.
+
+## Sharp 360 photos
+
+`13-pano-hd.sh` makes the 360 photos from the tour's full-size panoramas (macOS only; it uses Swift and the
+built-in image engine, nothing to install). Put the panoramas in `panoramas/` (kept out of git and out of
+`public/`), named like the tour's views, e.g. `Grand Living 02_12K.jpg` and `Grand Living 02_Bare_12K.jpg`, then run
+`tools/13-pano-hd.sh`. For every view and finish it writes a 2048-pixel preview to `public/pano/` and 1024-pixel
+tiles at 4096 and 8192 pixels around to `public/pano-hd/`, listed in `public/pano-hd/index.json`. The app shows the
+preview first and fades in the tile set that suits the screen. The work is done by `pano-tiles.swift`; set
+`PANO_Q` and `PANO_PREVIEW_Q` (0 to 1, defaults 0.5 and 0.45) to change the JPEG quality.

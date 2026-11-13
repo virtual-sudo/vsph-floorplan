@@ -53,13 +53,15 @@
 "n": 2,
 "name": "Lift Lobby",
 "x": 1546,
-"y": 656
+"y": 656,
+"yaw": 181
 },
 {
 "n": 1,
 "name": "Lift Car",
 "x": 1543,
-"y": 501
+"y": 501,
+"yaw": 260
 }
 ],
 "thumb": "thumbs/lobby.jpg",
@@ -109,19 +111,22 @@
 "n": 4,
 "name": "Grand Living 02",
 "x": 1821,
-"y": 656
+"y": 656,
+"yaw": 181
 },
 {
 "n": 3,
 "name": "Grand Living 01",
 "x": 1736,
-"y": 656
+"y": 656,
+"yaw": 224
 },
 {
 "n": 12,
 "name": "Grand Living 03",
 "x": 2045,
-"y": 693
+"y": 693,
+"yaw": 183
 }
 ],
 "thumb": "thumbs/living.jpg",
@@ -227,7 +232,8 @@
 "n": 13,
 "name": "Grand Living Balcony",
 "x": 2199,
-"y": 694
+"y": 694,
+"yaw": 195
 }
 ],
 "thumb": "thumbs/living-terrace.jpg",
@@ -277,19 +283,22 @@
 "n": 11,
 "name": "Dining 02",
 "x": 2032,
-"y": 396
+"y": 396,
+"yaw": 169
 },
 {
 "n": 5,
 "name": "Dining 01",
 "x": 1795,
-"y": 401
+"y": 401,
+"yaw": 69
 },
 {
 "n": 8,
 "name": "Dining 03",
 "x": 2126,
-"y": 290
+"y": 290,
+"yaw": 177
 }
 ],
 "thumb": "thumbs/dining.jpg",
@@ -343,13 +352,15 @@
 "n": 7,
 "name": "Gourmet Kitchen",
 "x": 1907,
-"y": 84
+"y": 84,
+"yaw": 281
 },
 {
 "n": 6,
 "name": "Kitchen Hallway",
 "x": 1753,
-"y": 229
+"y": 229,
+"yaw": 52
 }
 ],
 "thumb": "thumbs/kitchen.jpg",
@@ -443,7 +454,8 @@
 "n": 9,
 "name": "Dining 04 Balcony",
 "x": 2298,
-"y": 167
+"y": 167,
+"yaw": 163
 }
 ],
 "thumb": "thumbs/dining-terrace.jpg",
@@ -493,7 +505,8 @@
 "n": 10,
 "name": "Service Kitchen",
 "x": 1551,
-"y": 226
+"y": 226,
+"yaw": 111
 }
 ],
 "thumb": "thumbs/service-kitchen.jpg",
@@ -547,19 +560,22 @@
 "n": 17,
 "name": "Salon 01 Hallway",
 "x": 1798,
-"y": 988
+"y": 988,
+"yaw": 177
 },
 {
 "n": 14,
 "name": "Salon 03",
 "x": 2064,
-"y": 1063
+"y": 1063,
+"yaw": 180
 },
 {
 "n": 16,
 "name": "Salon 02",
 "x": 1783,
-"y": 1257
+"y": 1257,
+"yaw": 110
 }
 ],
 "thumb": "thumbs/salon.jpg",
@@ -649,7 +665,8 @@
 "n": 15,
 "name": "Salon 04 Balcony",
 "x": 2274,
-"y": 1063
+"y": 1063,
+"yaw": 210
 }
 ],
 "thumb": "thumbs/salon-terrace.jpg",
@@ -758,13 +775,15 @@
 "n": 18,
 "name": "Hallway Flex Space",
 "x": 1205,
-"y": 976
+"y": 976,
+"yaw": 7
 },
 {
 "n": 19,
 "name": "Flex Space",
-"x": 1183,
-"y": 1191
+"x": 1180,
+"y": 1073,
+"yaw": 270
 }
 ],
 "thumb": "thumbs/flex.jpg",
@@ -830,13 +849,15 @@
 "n": 22,
 "name": "Hallway 01 Primary Bedroom",
 "x": 633,
-"y": 927
+"y": 927,
+"yaw": 195
 },
 {
 "n": 20,
 "name": "Hallway 02 4th Bedroom",
 "x": 784,
-"y": 992
+"y": 992,
+"yaw": 253
 }
 ],
 "thumb": "thumbs/gallery.jpg",
@@ -890,13 +911,15 @@
 "n": 21,
 "name": "4th Bedroom",
 "x": 793,
-"y": 1096
+"y": 1096,
+"yaw": 225
 },
 {
 "n": 20,
 "name": "Hallway 02 4th Bedroom",
 "x": 784,
-"y": 992
+"y": 992,
+"yaw": 253
 }
 ],
 "thumb": "thumbs/bed4.jpg",
@@ -958,25 +981,29 @@
 "n": 25,
 "name": "Primary Bedroom 03",
 "x": 345,
-"y": 931
+"y": 931,
+"yaw": 345
 },
 {
 "n": 26,
 "name": "Primary Bedroom 04",
 "x": 174,
-"y": 1033
+"y": 1033,
+"yaw": 1
 },
 {
 "n": 28,
 "name": "Primary bedroom 05",
 "x": 328,
-"y": 1216
+"y": 1216,
+"yaw": 242
 },
 {
 "n": 23,
 "name": "Primary Bedroom Entrance",
 "x": 509,
-"y": 927
+"y": 927,
+"yaw": 359
 }
 ],
 "thumb": "thumbs/primary.jpg",
@@ -1026,13 +1053,15 @@
 "n": 29,
 "name": "Primary ENsuite 01",
 "x": 509,
-"y": 1239
+"y": 1239,
+"yaw": 193
 },
 {
 "n": 30,
 "name": "Primary Ensuite 02",
 "x": 511,
-"y": 1067
+"y": 1067,
+"yaw": 273
 }
 ],
 "thumb": "thumbs/primary-bath.jpg",
@@ -1082,7 +1111,8 @@
 "n": 24,
 "name": "Primary Bedroom Closet",
 "x": 521,
-"y": 773
+"y": 773,
+"yaw": 118
 }
 ],
 "thumb": "thumbs/primary-closet.jpg",
@@ -1200,7 +1230,8 @@
 "n": 27,
 "name": "Primary Bedroom Balcony",
 "x": 35,
-"y": 1032
+"y": 1032,
+"yaw": 8
 }
 ],
 "thumb": "thumbs/primary-terrace.jpg",
@@ -1250,25 +1281,29 @@
 "n": 40,
 "name": "3rd Bedroom 01",
 "x": 369,
-"y": 583
+"y": 583,
+"yaw": 328
 },
 {
 "n": 42,
 "name": "3rd Bedroom 02",
 "x": 346,
-"y": 798
+"y": 798,
+"yaw": 98
 },
 {
 "n": 39,
 "name": "3rd Bedroom entrance",
 "x": 500,
-"y": 582
+"y": 582,
+"yaw": 349
 },
 {
 "n": 31,
 "name": "Hallway 04 3rd Bedroom",
 "x": 643,
-"y": 582
+"y": 582,
+"yaw": 356
 }
 ],
 "thumb": "thumbs/bed3.jpg",
@@ -1338,7 +1373,8 @@
 "n": 41,
 "name": "3rd Bedroom balcony",
 "x": 206,
-"y": 679
+"y": 679,
+"yaw": 356
 }
 ],
 "thumb": "thumbs/bed3-terrace.jpg",
@@ -1396,31 +1432,36 @@
 "n": 34,
 "name": "2nd Bedroom 02",
 "x": 392,
-"y": 376
+"y": 376,
+"yaw": 58
 },
 {
 "n": 35,
 "name": "2nd Bedroom 03",
 "x": 189,
-"y": 227
+"y": 227,
+"yaw": 96
 },
 {
 "n": 36,
 "name": "2nd Bedroom 04",
 "x": 406,
-"y": 106
+"y": 106,
+"yaw": 11
 },
 {
 "n": 33,
 "name": "2nd Bedroom Entrance",
 "x": 509,
-"y": 382
+"y": 382,
+"yaw": 0
 },
 {
 "n": 32,
 "name": "Hallway 05 2nd Bedroom",
 "x": 644,
-"y": 391
+"y": 391,
+"yaw": 359
 }
 ],
 "thumb": "thumbs/bed2.jpg",
@@ -1470,7 +1511,8 @@
 "n": 37,
 "name": "2nd Bedroom Ensuite",
 "x": 529,
-"y": 123
+"y": 123,
+"yaw": 186
 }
 ],
 "thumb": "thumbs/bed2-bath.jpg",
@@ -1592,7 +1634,8 @@
 "n": 38,
 "name": "2nd Bedroom Balcony",
 "x": 43,
-"y": 326
+"y": 326,
+"yaw": 4
 }
 ],
 "thumb": "thumbs/bed2-terrace.jpg",

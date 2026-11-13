@@ -12,9 +12,10 @@ function openFromHash() {
 
 export function App() {
   const time = useStore((s) => s.time);
+  const inside = useStore((s) => s.inside);
   useEffect(() => { openFromHash(); }, []);
   return (
-    <div className={'app ' + time}>
+    <div className={'app ' + time + (inside ? ' inside' : '')}>
       <div className="stage"><Stage><VillaContent /></Stage></div>
       <UI />
     </div>

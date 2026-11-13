@@ -35,7 +35,9 @@ export interface PlanData {
 }
 export const plan = planJson as unknown as PlanData;
 
-export interface RoomCam { n: number; name: string; x: number; y: number }
+// yaw: how far the 360 photo is turned in the plan (degrees, see three/panoLink.ts)
+// bare: false when there is no bare photo for this view; missing: no photo of its own (left out of the app)
+export interface RoomCam { n: number; name: string; x: number; y: number; yaw?: number; bare?: boolean; missing?: boolean }
 export interface Room {
   id: string;
   name: string;
@@ -52,7 +54,7 @@ export interface Room {
   info: string;
   features: string[];
 }
-export const rooms = (roomsJson as unknown as { rooms: Room[] }).rooms;
+export const rooms = (roomsJson as unknown as { rooms: Room[] }).rooms.map((r) => ({ ...r, cams: r.cams.filter((c) => !c.missing) }));
 export const roomById = (id: string | null) => rooms.find((r) => r.id === id) || null;
 
 export const ZONES: Record<Room['zone'], string> = {

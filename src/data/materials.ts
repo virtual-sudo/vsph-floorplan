@@ -28,6 +28,7 @@ export interface MatDef {
   ior?: number;
   emissive?: string;
   emissiveIntensity?: number;
+  glow?: number; // the colour map also lights itself this much (artworks: stands in for picture lighting)
   swatch?: string;       // CSS background for the picker
   spec?: string;         // code in the Park Villas specs book (FCD Specs Book Rev 02, 11 July 2025)
 }
@@ -74,7 +75,9 @@ const floor = (id: string, name: string, tex: string, tile: number, extra: Parti
 export const MATERIALS: MatDef[] = [
   // floors
   floor('floor-oak-light', 'Pale oak planks', 'oak_light', 2.4, { clearcoat: 0.12, clearcoatRoughness: 0.35 }),
-  floor('floor-oak-grey', 'Smoked grey oak', 'oak_grey', 2.4, { clearcoat: 0.12, clearcoatRoughness: 0.35 }),
+  // the living wing's smoked grey oak, cut straight down from the Kitchen Hallway 360 photo (1.4 m square, de-lit and
+  // made seamless with tools/rug-from-pano.swift); the planks run north-south as in the photos
+  { id: 'floor-oak-grey', name: 'Smoked grey oak', kind: 'floor', color: '#ffffff', map: T('oak_floor_k'), normal: T('oak_floor_k_n'), rep: 1 / 1.4, normalScale: 0.2, roughness: 0.6, clearcoat: 0.12, clearcoatRoughness: 0.35, swatch: 'url(tex/oak_floor_k.jpg) center/220%' },
   floor('floor-herring', 'Oak herringbone', 'herring', 1.8, { rot: Math.PI / 4, clearcoat: 0.15, clearcoatRoughness: 0.3 }),
   floor('floor-limestone', 'Limestone tiles', 'limestone', 2.4),
   floor('floor-stone', 'Grey stone tiles', 'stone_grey', 2.4),
@@ -84,6 +87,12 @@ export const MATERIALS: MatDef[] = [
 
   // upholstery
   fabric('boucle-ivory', 'Ivory boucle', '#e9e2d6', 'fab_boucle_n', 0.7, 0.95),
+  // The coarse pebble loop of the Grand Living upholstery (11-15 mm loops with dark gaps, measured on the 12K
+  // panoramas; maps from tools/fabric-boucle.swift, mapped triplanar in matlib). In review: work/i2t/club.
+  // The Grand Living rug, cut from the Grand Living 03 panorama (straight-down view), de-lit and made seamless
+  // (tools/rug-from-pano.swift): silver-beige croc / cobblestone pile. One tile is about 1.1 m.
+  { id: 'rug-croc', name: 'Silver croc pile rug', kind: 'rug', color: '#ffffff', map: T('rug_croc'), normal: T('rug_croc_n'), rep: 0.9, normalScale: 0.7, roughness: 1, sheen: 0.35, sheenColor: '#d8d0c4' },
+  { ...fabric('boucle-pebble-ivory', 'Ivory pebble boucle', '#f3ede3', 'fab_boucle_n', 0.3, 0.95), normal: T('fab_pebble_n'), map: T('fab_pebble_c'), rep: 4, normalScale: 0.6 },
   fabric('boucle-oat', 'Oat boucle', '#d6c8b2', 'fab_boucle_n', 0.7, 0.95),
   fabric('boucle-stone', 'Stone boucle', '#b9b1a5', 'fab_boucle_n', 0.7, 0.95),
   fabric('linen-white', 'White linen', '#efece6'),
@@ -135,6 +144,8 @@ export const MATERIALS: MatDef[] = [
   metal('black-steel', 'Black steel', '#26262a', 0.45),
   metal('chrome', 'Polished chrome', '#e6e6e6', 0.06, false),
   metal('copper', 'Aged copper', '#b06a45', 0.35),
+  metal('bronze-satin', 'Satin bronze', '#8a7354', 0.32),
+  metal('stainless', 'Brushed stainless', '#8a8b8a', 0.3),
 
   // glass
   { id: 'glass-clear', name: 'Clear glass', kind: 'glass', color: '#e8f1f0', roughness: 0.04, metalness: 0, opacity: 0.22, ior: 1.5, swatch: 'linear-gradient(135deg,#eaf3f2,#ffffff 50%,#cfe0de)' },
@@ -192,6 +203,34 @@ export const MATERIALS: MatDef[] = [
   // light emitters (lamp shades, bulbs)
   { id: 'shade-linen', name: 'Linen shade', kind: 'emissive', color: '#efe6d6', roughness: 0.9, emissive: '#ffcf8a', emissiveIntensity: 0 },
   { id: 'bulb', name: 'Bulb', kind: 'emissive', color: '#fff4e0', roughness: 0.3, emissive: '#ffd59a', emissiveIntensity: 0 },
+  // always-on warm LED strip (the wine wall shelves are lit by day in the photos)
+  { id: 'led-warm', name: 'LED strip', kind: 'emissive', color: '#fff1d8', roughness: 0.4, emissive: '#ffc77a', emissiveIntensity: 2.4 },
+  // the Grand Living wine-room piers: limed rift-cut veneer, cut from the 360 photo (tools/rug-from-pano.swift)
+  { id: 'veneer-limed', name: 'Limed oak veneer', kind: 'wood', color: '#ffffff', map: T('veneer_pier'), normal: T('veneer_pier_n'), rep: 0.63, normalScale: 0.12, roughness: 0.62, clearcoat: 0.1, clearcoatRoughness: 0.5 },
+  // the bulkhead over the wine rooms: the same veneer turned to run across, stained darker
+  { id: 'veneer-smoked', name: 'Smoked oak veneer', kind: 'wood', color: '#9c8b7d', map: T('veneer_pier'), normal: T('veneer_pier_n'), rep: 0.63, rot: Math.PI / 2, normalScale: 0.12, roughness: 0.6, clearcoat: 0.1, clearcoatRoughness: 0.5 },
+  // Formal Dining: the island and niche marble cut from the 360 photo (charcoal with flowing grey and white veins),
+  // and the pale grey-washed oak of the table and chair legs (the limed veneer, cooler)
+  { id: 'marble-island', name: 'Grey-veined charcoal marble', kind: 'stone', color: '#ffffff', map: T('marble_island'), normal: T('marble_island_n'), rep: 1.1, normalScale: 0.12, roughness: 0.22, clearcoat: 0.35, clearcoatRoughness: 0.12 },
+  { id: 'oak-greywash', name: 'Grey-washed oak', kind: 'wood', color: '#d2ccc6', map: T('veneer_pier'), normal: T('veneer_pier_n'), rep: 0.8, normalScale: 0.15, roughness: 0.62, clearcoat: 0.1, clearcoatRoughness: 0.5 },
+  // Formal Dining: the chairs' nubby chartreuse wool, the chandelier's lit frosted tubes, dried pampas
+  { ...fabric('wool-chartreuse', 'Chartreuse wool boucle', '#959245', 'fab_boucle_n', 0.45, 0.92), rep: 6, normalScale: 0.55 },
+  { id: 'lamp-frost', name: 'Lit frosted glass', kind: 'emissive', color: '#fffaf2', roughness: 0.35, emissive: '#fff0d8', emissiveIntensity: 1.4 },
+  { id: 'pampas', name: 'Dried pampas', kind: 'fabric', color: '#d4bf9e', roughness: 1, sheen: 0.8, sheenColor: '#f4ead8', sheenRoughness: 0.7 },
+  // Gourmet Kitchen, cut from the Kitchen Hallway 360 photo: the dark rift oak of the tall joinery and island (a
+  // flat door seen straight on), the bar's black speckled stone fronts, the bar top (the island marble, warmer), and
+  // its splashback, book-matched from one straightened crop (tools/strip-mirror.swift) and spread over the whole panel
+  { id: 'oak-kitchen', name: 'Smoked rift oak veneer', kind: 'wood', color: '#b4b0b0', map: T('oak_kitchen'), normal: T('oak_kitchen_n'), rep: 1.6, normalScale: 0.1, roughness: 0.56, clearcoat: 0.08, clearcoatRoughness: 0.5 },
+  { id: 'stone-speckle', name: 'Black speckled granite', kind: 'stone', color: '#c4c9d0', map: T('stone_speckle'), normal: T('stone_speckle_n'), rep: 2.2, normalScale: 0.2, roughness: 0.42, clearcoat: 0.2, clearcoatRoughness: 0.3 },
+  { id: 'marble-bar', name: 'Brown-grey veined marble', kind: 'stone', color: '#e6cfb8', map: T('marble_island'), normal: T('marble_island_n'), rep: 0.9, normalScale: 0.12, roughness: 0.22, clearcoat: 0.35, clearcoatRoughness: 0.12 },
+  { id: 'marble-splash', name: 'Book-matched grey marble', kind: 'stone', color: '#ffffff', map: T('marble_splash'), rep: 1, roughness: 0.2, clearcoat: 0.4, clearcoatRoughness: 0.1 },
+  // the wine rooms' warm smoked glass
+  { id: 'glass-wine', name: 'Bronze smoked glass', kind: 'glass', color: '#5b4a3c', roughness: 0.05, metalness: 0, opacity: 0.5, ior: 1.5, swatch: 'linear-gradient(135deg,#5b4a3c,#a08b78 50%,#4a3c30)' },
+  // Grand Living artworks, straightened from the 360 photos (tools/quad-rectify.swift); each texture spans its canvas once
+  { id: 'art-stones-a', name: 'Stacked stones print I', kind: 'fixture', color: '#ffffff', map: T('art_a'), rep: 1, roughness: 0.92, glow: 0.3 },
+  { id: 'art-stones-b', name: 'Stacked stones print II', kind: 'fixture', color: '#ffffff', map: T('art_b'), rep: 1, roughness: 0.92, glow: 0.3 },
+  { id: 'art-waves', name: 'Carved wave relief', kind: 'fixture', color: '#ffffff', map: T('art_n'), rep: 1, roughness: 0.95, glow: 0.3 },
+  { id: 'art-rain', name: 'Washed abstract on linen', kind: 'fixture', color: '#ffffff', map: T('art_s'), rep: 1, roughness: 0.95, glow: 0.3 },
   // ---- Park Villas specs book finishes (lobby and amenity floors). Colours are read from the scanned swatches. ----
   { id: 'st500', name: 'Moca fine-grain limestone, honed 20 mm', kind: 'floor', spec: 'ST-500', color: '#ffffff', map: T('stone_moca'), normal: T('stone_moca_n'), rep: 1 / 2.4, normalScale: 0.5, roughness: 0.42, clearcoat: 0.15, clearcoatRoughness: 0.3 },
   { id: 'st501', name: 'Moleanos limestone, bush-hammered 10 mm', kind: 'floor', spec: 'ST-501', color: '#ffffff', map: T('stone_moleanos'), normal: T('stone_moleanos_n'), rep: 1 / 2.4, normalScale: 0.8, roughness: 0.85 },

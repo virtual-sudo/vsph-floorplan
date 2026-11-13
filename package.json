@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bake": "esbuild tools/bake-soft.ts --bundle --platform=node --format=esm --outfile=work/bake-soft.mjs --log-level=warning && node work/bake-soft.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

@@ -6,3 +6,4 @@ tour-media
 dist-artifact
 .claude/
 *.tsbuildinfo
+panoramas/

@@ -12,9 +12,10 @@ import { DEBUG } from '../debug';
 const PRESETS = {
   day: {
     bg: '#e9e7e2', env: 'hdr/lebombo_1k', envI: 0.42, envRot: 0.8,
-    sun: { pos: [-16, 26, 14], color: '#fff1dc', i: 3.4 },
+    // the sun stands in the east, about 45 degrees up, as in the 360 photos (the Dining Terrace panorama shows it)
+    sun: { pos: [20, 22, 9], color: '#fff1dc', i: 3.4 },
     hemi: { sky: '#e9eef5', ground: '#b9a68a', i: 0.32 },
-    exposure: 1.0
+    exposure: 0.95
   },
   night: {
     bg: '#20242c', env: 'hdr/dikhololo_night_1k', envI: 0.35, envRot: 0,

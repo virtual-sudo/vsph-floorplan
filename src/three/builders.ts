@@ -7,6 +7,7 @@ import {
   V2, rbox, cushion, extrudeUp, ellipse, squircle, pebble, arcBand, band, offsetLine, splitPath, pathLength, pathAt,
   lathe, cyl, tube, sphere, tr, rand, worldUV
 } from './geo';
+import { clubChair, sectional, loungeChair } from './soft/seating';
 
 export interface SlotDef { label: string; kind: string; def: string }
 export interface Built {
@@ -22,6 +23,14 @@ const D = Math.PI / 180;
 
 // ---------------- sofas (straight, L-shaped, curved: all from the back line) ----------------
 function sofa(p: P): Built {
+  if (p.style === 'soft') {
+    if (p.arc && !p.path) {
+      const { r, a0, a1, cx = 0, cz = 0 } = p.arc;
+      const n = Math.max(8, Math.round(Math.abs(a1 - a0) / 3));
+      p = { ...p, path: Array.from({ length: n + 1 }, (_, i) => { const a = (a0 + (a1 - a0) * (i / n)) * D; return [cx + Math.cos(a) * r, cz + Math.sin(a) * r]; }), cornerR: 0.01 };
+    }
+    return sectional(p);
+  }
   const b: Built = { parts: {}, slots: {
     upholstery: { label: 'Upholstery', kind: 'upholstery', def: p.fabric || 'boucle-ivory' },
     cushions: { label: 'Scatter cushions', kind: 'fabric', def: p.cushions || 'linen-flax' },
@@ -104,6 +113,8 @@ function sofa(p: P): Built {
 // ---------------- chairs ----------------
 function armchair(p: P): Built {
   const st = p.style || 'barrel';
+  if (st === 'club2') return clubChair(p);
+  if (st === 'lounge') return loungeChair(p);
   const b: Built = { parts: {}, slots: {
     upholstery: { label: 'Upholstery', kind: 'upholstery', def: p.fabric || 'boucle-ivory' },
     base: { label: st === 'out' ? 'Frame' : 'Base', kind: st === 'out' ? 'wood' : 'metal', def: p.base || (st === 'out' ? 'teak' : 'bronze') }
@@ -149,6 +160,7 @@ function armchair(p: P): Built {
 }
 
 function diningChair(p: P): Built {
+  if (p.style === 'horseshoe') return horseshoeChair(p);
   const b: Built = { parts: {}, slots: {
     upholstery: { label: 'Seat and back', kind: 'upholstery', def: p.fabric || 'velvet-olive' },
     frame: { label: 'Frame', kind: 'metal', def: p.frame || 'brass' }
@@ -168,6 +180,28 @@ function diningChair(p: P): Built {
   return b;
 }
 
+// Formal Dining (work/i2t/DINING-INVENTORY.md item 2): an upholstered horseshoe rail carried by two wide flat oak
+// posts under the arm ends and two slim tapered back legs, over a separate upholstered seat on a thin oak frame
+function horseshoeChair(p: P): Built {
+  const b: Built = { parts: {}, slots: {
+    upholstery: { label: 'Seat and rail', kind: 'upholstery', def: p.fabric || 'wool-chartreuse' },
+    frame: { label: 'Legs', kind: 'wood', def: p.frame || 'oak-greywash' }
+  } };
+  const sh = 0.47, ry = 0.6, rh = 0.13, cz = -0.03, r0 = 0.235, r1 = 0.325, span = 116;
+  add(b, 'upholstery', extrudeUp(arcBand(r0, r1, (-90 - span) * D, (-90 + span) * D, 56, 0, cz), ry, rh, 0.04, undefined, 48, 4));
+  add(b, 'upholstery', extrudeUp(squircle(0.235, 0.225, 3.2, 48).map(([x, z]) => [x, z + 0.03] as V2), sh - 0.09, 0.09, 0.035, undefined, 32, 4));
+  const rm = (r0 + r1) / 2, ea = (-90 + span) * D;
+  const fx = Math.cos(ea) * rm, fz = cz + Math.sin(ea) * rm;
+  for (const sx of [-1, 1]) add(b, 'frame', tr(rbox(0.042, ry + 0.01, 0.088, 0.01), sx * fx, (ry + 0.01) / 2, fz - 0.015, sx * 0.35, -0.03, sx * 0.04)); // flat boards set along the arms
+  // two slim tapered back legs under the rail's back corners, splayed out a little
+  for (const sx of [-1, 1]) {
+    const a = (-90 + sx * 52) * D, x = Math.cos(a) * rm, z = cz + Math.sin(a) * rm;
+    add(b, 'frame', tube([[x * 1.12, 0, z * 1.12 - 0.02], [x * 1.04, ry * 0.5, z * 1.05], [x, ry + 0.01, z]], 0.015, 6));
+  }
+  add(b, 'frame', tr(rbox(0.4, 0.03, 0.36, 0.006), 0, sh - 0.105, 0.0));
+  return b;
+}
+
 // ---------------- tables ----------------
 function table(p: P): Built {
   const st = p.style || 'drum';
@@ -175,7 +209,40 @@ function table(p: P): Built {
     top: { label: 'Top', kind: 'top', def: p.top || 'calacatta' }
   } };
   const base = (def: string, label = 'Base', kind = 'metal') => { b.slots.base = { label, kind, def: p.base || def }; };
-  if (st === 'oval') {
+  if (st === 'stadium') {
+    // Formal Dining (DINING-INVENTORY item 1): a long racetrack top in grey-washed oak on one flared oval pedestal,
+    // laid for twelve
+    const rx = p.rx || 1.92, rz = p.rz || 0.6, h = p.h || 0.75, t = 0.065;
+    const pts: V2[] = [];
+    for (let i = 0; i <= 40; i++) { const a = -Math.PI / 2 + (Math.PI * i) / 40; pts.push([rx - rz + Math.cos(a) * rz, Math.sin(a) * rz]); }
+    for (let i = 0; i <= 40; i++) { const a = Math.PI / 2 + (Math.PI * i) / 40; pts.push([-(rx - rz) + Math.cos(a) * rz, Math.sin(a) * rz]); }
+    add(b, 'top', extrudeUp(pts, h - t, t, 0.016, undefined, 96, 3));
+    base(p.top || 'oak-greywash', 'Pedestal', 'wood');
+    add(b, 'base', lathe([[0, 0], [0.3, 0], [0.3, 0.025], [0.24, 0.07], [0.2, 0.25], [0.2, 0.48], [0.25, h - t - 0.03], [0.27, h - t], [0, h - t]], 64).scale(rx * 0.62 / 0.3 * 0.5, 1, rz * 0.62 / 0.3 * 0.6));
+    if (p.runner !== false) {
+      b.slots.runner = { label: 'Runner', kind: 'fabric', def: p.runner || 'linen-white' };
+      add(b, 'runner', tr(rbox(rx * 2 - 0.5, 0.005, 0.46, 0.002), 0, h + 0.003, 0));
+    }
+    if (p.settings) {
+      b.fixed = { ...(b.fixed || {}), plate: 'ceramic-white', glass: 'glass-clear', cutlery: 'brass', napkin: 'linen-flax' };
+      // the twelve seats of the Formal Dining chair ring (src/data/furniture.ts): five a side, one at each end
+      const seats: [number, number, number][] = [];
+      for (const x of [-1.3, -0.65, 0, 0.65, 1.3]) { seats.push([x, rz - 0.21, 0]); seats.push([x, -(rz - 0.21), Math.PI]); }
+      seats.push([rx - 0.27, 0, Math.PI / 2]); seats.push([-(rx - 0.27), 0, -Math.PI / 2]);
+      for (const [sx, sz, a] of seats) {
+        const put = (g: THREE.BufferGeometry, slot: string, lx: number, ly: number, lz: number, ry = 0) => add(b, slot, tr(g.rotateY(ry).translate(lx, ly, lz), sx, h, sz, a));
+        put(lathe([[0, 0], [0.14, 0], [0.16, 0.012], [0.155, 0.014], [0, 0.006]], 40), 'plate', 0, 0, 0);
+        put(lathe([[0, 0], [0.1, 0], [0.13, 0.016], [0.125, 0.018], [0, 0.008]], 40), 'plate', 0, 0.012, 0);
+        put(lathe([[0, 0], [0.035, 0], [0.065, 0.035], [0.062, 0.037], [0.03, 0.006], [0, 0.006]], 32), 'plate', 0, 0.026, 0);
+        put(lathe([[0, 0], [0.035, 0], [0.004, 0.006], [0.004, 0.11], [0.03, 0.13], [0.04, 0.2], [0.037, 0.2], [0.027, 0.135], [0, 0.125]], 24), 'glass', 0.16, 0, -0.17);
+        put(lathe([[0, 0], [0.032, 0], [0.034, 0.1], [0.031, 0.1], [0.029, 0.006], [0, 0.006]], 24), 'glass', 0.07, 0, -0.21);
+        put(rbox(0.018, 0.004, 0.2, 0.001), 'cutlery', -0.2, 0.003, 0.01);
+        put(rbox(0.016, 0.004, 0.21, 0.001), 'cutlery', 0.19, 0.003, 0.01);
+        put(rbox(0.016, 0.004, 0.17, 0.001), 'cutlery', 0.22, 0.003, 0.01);
+        put(rbox(0.12, 0.01, 0.2, 0.004), 'napkin', -0.25, 0.006, 0.01, 0.05);
+      }
+    }
+  } else if (st === 'oval') {
     const rx = p.rx || 1.9, rz = p.rz || 0.8, h = p.h || 0.75, t = 0.05;
     add(b, 'top', extrudeUp(ellipse(rx, rz, 96), h - t, t, 0.014, undefined, 96, 3));
     base(p.top || 'travertine', 'Pedestals', 'top');
@@ -184,10 +251,28 @@ function table(p: P): Built {
       b.slots.runner = { label: 'Runner', kind: 'fabric', def: p.runner || 'linen-white' };
       add(b, 'runner', tr(rbox(rx * 1.72, 0.006, 0.42, 0.002), 0, h + 0.003, 0));
     }
+  } else if (st === 'pebble' && p.legs === 'cyl2') {
+    // Grand Living: a 6 cm pebble-shaped marble slab with a soft 2.5 cm edge on two round travertine pedestals
+    // (work/i2t/GRAND-LIVING-INVENTORY.md item 5)
+    const rx = p.rx || 0.7, rz = p.rz || 0.4, h = p.h || 0.36, t = 0.06, lr = p.legR || 0.12;
+    add(b, 'top', extrudeUp(pebble(rx, rz, p.seed || 1, 0.09), h - t, t, 0.025, undefined, 96, 4));
+    base('travertine', 'Pedestals', 'top');
+    for (const sx of [-1, 1]) add(b, 'base', extrudeUp(ellipse(lr, lr, 48, sx * rx * 0.48, (p.legZ || 0) * rz), 0, h - t + 0.005, 0.006, undefined, 48, 2));
   } else if (st === 'pebble') {
     const rx = p.rx || 0.7, rz = p.rz || 0.4, h = p.h || 0.34;
     add(b, 'top', extrudeUp(pebble(rx, rz, p.seed || 1, 0.09), 0.04, h - 0.04, 0.035, undefined, 72, 4));
     add(b, 'top', extrudeUp(pebble(rx * 0.86, rz * 0.82, p.seed || 1, 0.09), 0, 0.05, 0, undefined, 48));
+  } else if (st === 'nest') {
+    // Grand Living nesting side tables: oval dark tops on antique-bronze trumpet stems that flare into disc feet
+    b.slots.top.def = p.top || 'walnut';
+    base('ml501', 'Stems', 'metal');
+    const pair: [number, number, number, number, number][] = [[0, 0, 0.27, 0.23, 0.56], [0.36, 0.12, 0.22, 0.19, 0.61]]; // x, z, rx, rz, h
+    for (const [x, z, rx, rz, h] of pair.slice(0, p.single ? 1 : 2)) {
+      add(b, 'top', extrudeUp(pebble(rx, rz, (p.seed || 2) + x * 10, 0.06), h - 0.022, 0.022, 0.008, undefined, 72, 2).translate(x, 0, z));
+      const stem = lathe([[0, 0], [0.11, 0], [0.115, 0.012], [0.105, 0.032], [0.05, 0.05], [0.026, 0.12], [0.02, h * 0.55], [0.022, h - 0.05], [0.05, h - 0.024], [0, h - 0.024]], 40);
+      stem.scale(1, 1, rz / rx);
+      add(b, 'base', stem.translate(x, 0, z));
+    }
   } else if (st === 'drum') {
     const r = p.r || 0.25, h = p.h || 0.48;
     add(b, 'top', extrudeUp(ellipse(r, r, 48), 0, h, 0.012, undefined, 48));
@@ -317,6 +402,30 @@ function lamp(p: P): Built {
     add(b, 'lamp', tr(cyl(0.07, 0.07, 0.03, 24), 0, 3.07, 0));
     add(b, 'shade', tr(sphere(r, 40, 28), 0, y, 0));
     add(b, 'lamp', tr(lathe([[0, 0], [0.06, 0], [0.05, 0.05], [0, 0.06]], 24), 0, y + r - 0.02, 0));
+  } else if (st === 'branch') {
+    // Formal Dining (DINING-INVENTORY item 3): a dark bronze stem that branches into angled arms, each ending in a
+    // frosted glass tube that is lit (by day too, as in the photos)
+    const y = p.y || 2.25, top = 3.1;
+    b.fixed = { tube: 'lamp-frost' };
+    add(b, 'lamp', cyl(0.007, 0.007, top - y, 8, y));
+    add(b, 'lamp', tr(cyl(0.05, 0.05, 0.02, 24), 0, top - 0.02, 0));
+    add(b, 'lamp', tr(sphere(0.016, 12, 8), 0, y, 0));
+    const tip = (pts: [number, number, number][]) => {
+      add(b, 'lamp', tube(pts, 0.007, 12));
+      const [a, c] = [pts[pts.length - 2], pts[pts.length - 1]];
+      const d = new THREE.Vector3(c[0] - a[0], c[1] - a[1], c[2] - a[2]).normalize();
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d);
+      const g = lathe([[0, 0], [0.024, 0], [0.034, 0.05], [0.03, 0.13], [0.012, 0.15], [0, 0.15]], 16).applyQuaternion(q).translate(c[0], c[1], c[2]);
+      add(b, 'tube', g);
+      add(b, 'lamp', cyl(0.026, 0.026, 0.018, 16, -0.009).applyQuaternion(q).translate(c[0], c[1], c[2]));
+    };
+    const arms: [number, number, number][] = [[0, 0.62, -0.05], [72, 0.5, 0.06], [144, 0.58, -0.02], [216, 0.46, 0.08], [288, 0.6, -0.04]];
+    for (const [az, len, rise] of arms) {
+      const c = Math.cos(az * D), sn = Math.sin(az * D);
+      const k = [c * len * 0.45, y - 0.12, sn * len * 0.45] as [number, number, number];
+      tip([[0, y, 0], k, [c * len, y - 0.2 + rise, sn * len]]);
+    }
+    tip([[0, y, 0], [0.02, y - 0.25, 0.01]]);
   } else if (st === 'floor') {
     add(b, 'lamp', cyl(0.16, 0.17, 0.025, 32));
     add(b, 'lamp', cyl(0.012, 0.012, 1.45, 8, 0.02));
@@ -442,20 +551,150 @@ function sculpture(p: P): Built {
 }
 
 // ---------------- kitchen, bath, joinery ----------------
+// A kitchen island: worktop with waterfall ends over a cabinet body. With p.doors (Gourmet Kitchen, KITCHEN-INVENTORY
+// item 1) the working side (-z) gets flush veneered doors over a black carcass, a dishwasher panel at the -x end,
+// and the far side (+z) is clad in the worktop stone. p.tapSide 1 stands the tap behind the sink on the +z side.
 function island(p: P): Built {
-  const w = p.w || 3.6, d = p.d || 1.25, h = p.h || 0.92, t = 0.05;
+  const w = p.w || 3.6, d = p.d || 1.25, h = p.h || 0.92, t = 0.05, kick = 0.08;
   const b: Built = { parts: {}, slots: {
     top: { label: 'Worktop', kind: 'stone', def: p.top || 'patagonia' },
-    body: { label: 'Cabinetry', kind: 'wood', def: p.body || 'ebony' }
-  }, fixed: { inset: 'black-steel', glass: 'lacquer-black', tap: 'nickel' } };
-  add(b, 'body', tr(rbox(w - 2 * t - 0.02, h - t - 0.08, d - 0.1, 0.008), 0, 0.08 + (h - t - 0.08) / 2, 0));
+    body: { label: p.doors ? 'Cupboard fronts' : 'Cabinetry', kind: 'wood', def: p.body || 'ebony' }
+  }, fixed: { inset: 'black-steel', glass: 'lacquer-black', tap: p.tapMat || 'nickel', carcass: 'black-steel', steel: 'nickel' } };
+  const bd = d - 0.1;
+  add(b, p.doors ? 'carcass' : 'body', tr(rbox(w - 2 * t - 0.02, h - t - kick, bd, 0.008), 0, kick + (h - t - kick) / 2, 0));
   add(b, 'top', tr(rbox(w, t, d, 0.006), 0, h - t / 2, 0));
   for (const sx of [-1, 1]) add(b, 'top', tr(rbox(t, h - t, d, 0.004), sx * (w / 2 - t / 2), (h - t) / 2, 0));
-  if (p.sink) {
-    add(b, 'inset', tr(rbox(0.62, 0.006, 0.42, 0.004), p.sink[0], h + 0.001, p.sink[1]));
-    add(b, 'tap', tube([[p.sink[0], h, p.sink[1] - 0.28], [p.sink[0], h + 0.38, p.sink[1] - 0.28], [p.sink[0], h + 0.42, p.sink[1] - 0.14], [p.sink[0], h + 0.32, p.sink[1] - 0.06]], 0.014, 24));
+  if (p.doors) {
+    const iw = w - 2 * t - 0.02, n = Math.max(1, Math.round(iw / 0.6)), dw = iw / n, y0 = kick + 0.004, y1 = h - t - 0.004, zf = -bd / 2 - 0.01;
+    for (let i = 0; i < n; i++) {
+      const x = -iw / 2 + dw * (i + 0.5);
+      if (i === 0) { // dishwasher: black glass with a steel control strip along the top
+        add(b, 'glass', tr(rbox(dw - 0.006, y1 - y0 - 0.06, 0.02, 0.002), x, (y0 + y1 - 0.06) / 2, zf));
+        add(b, 'steel', tr(rbox(dw - 0.006, 0.055, 0.02, 0.002), x, y1 - 0.0275, zf));
+      } else add(b, 'body', tr(rbox(dw - 0.006, y1 - y0, 0.02, 0.002), x, (y0 + y1) / 2, zf));
+    }
+    add(b, 'top', tr(rbox(w - 2 * t - 0.002, h - t, 0.04, 0.004), 0, (h - t) / 2, d / 2 - 0.02)); // stone-clad far side
   }
-  if (p.hob) add(b, 'glass', tr(rbox(0.86, 0.008, 0.52, 0.004), p.hob[0], h + 0.002, p.hob[1]));
+  const [sw, sd] = p.sinkSize || [0.62, 0.42], [hw, hd] = p.hobSize || [0.86, 0.52];
+  if (p.sink) {
+    const [sx, sz] = p.sink, k = p.tapSide === 1 ? -1 : 1; // k: which way the spout reaches
+    add(b, 'inset', tr(rbox(sw, 0.006, sd, 0.004), sx, h + 0.001, sz));
+    const tz = sz - k * (sd / 2 + 0.07);
+    add(b, 'tap', tube([[sx, h, tz], [sx, h + 0.38, tz], [sx, h + 0.42, tz + k * 0.14], [sx, h + 0.32, tz + k * 0.22]], 0.014, 24));
+  }
+  if (p.hob) add(b, 'glass', tr(rbox(hw, 0.008, hd, 0.004), p.hob[0], h + 0.002, p.hob[1]));
+  return b;
+}
+// Gourmet Kitchen (KITCHEN-INVENTORY items 2-3): full-height flush joinery set into the wall cavity, so its doors
+// sit on the wall line. Columns run from -x to +x (p.cols, each {k, w}): 'fridge' (a pair of doors with long bar
+// handles), 'oven' (a built-in oven at p.ovenY), 'door' (a plain tall door). A shadow-gap joint crosses every column
+// at p.joint (the top cupboards; 0 for none); the carcass behind is black, so every gap between doors reads dark.
+function tallRun(p: P): Built {
+  const h = p.h || 3.08, d = p.d || 0.6, jy = p.joint ?? 2.15, g = 0.006, plinth = 0.08, zf = d / 2;
+  const cols: { k: string; w: number }[] = p.cols || [{ k: 'door', w: 0.6 }];
+  const W = cols.reduce((s, c) => s + c.w, 0);
+  const b: Built = { parts: {}, slots: {
+    body: { label: 'Joinery', kind: 'wood', def: p.body || 'oak-kitchen' },
+    handle: { label: 'Handles', kind: 'metal', def: p.handle || 'nickel' }
+  }, fixed: { gap: 'black-steel', steel: 'stainless', glass: 'lacquer-black', knob: 'copper' } };
+  add(b, 'gap', tr(rbox(W, h, d - 0.03, 0.002), 0, h / 2, -0.015));
+  add(b, 'gap', tr(rbox(W, plinth, 0.02, 0.001), 0, plinth / 2, zf - 0.07));
+  const door = (y0: number, y1: number, w: number, x: number) => add(b, 'body', tr(rbox(w - g, y1 - y0 - g, 0.02, 0.002), x, (y0 + y1) / 2, zf - 0.01));
+  let x0 = -W / 2;
+  for (const c of cols) {
+    const cx = x0 + c.w / 2, y1 = jy || h;
+    if (jy) door(jy, h, c.w, cx);
+    if (c.k === 'fridge') {
+      for (const s of [-1, 1]) {
+        door(plinth, y1, c.w / 2, cx + (s * c.w) / 4);
+        const hx = cx + s * 0.04; // bar handles beside the meeting edge
+        add(b, 'handle', tr(cyl(0.011, 0.011, 1.3, 16), hx, 0.62, zf + 0.045));
+        for (const yy of [0.66, 1.88]) add(b, 'handle', tr(rbox(0.016, 0.016, 0.045, 0.004), hx, yy, zf + 0.022));
+      }
+    } else if (c.k === 'oven') {
+      const oy = p.ovenY ?? 1.3, os = 0.595;
+      door(plinth, oy - os / 2 - 0.004, c.w, cx);
+      door(oy + os / 2 + 0.004, y1, c.w, cx);
+      add(b, 'steel', tr(rbox(os, os, 0.03, 0.004), cx, oy, zf - 0.005));
+      add(b, 'glass', tr(rbox(0.46, 0.3, 0.006, 0.002), cx, oy - 0.07, zf + 0.012));
+      add(b, 'steel', tr(cyl(0.008, 0.008, 0.46, 12), cx + 0.23, oy + 0.12, zf + 0.04, 0, 0, Math.PI / 2));
+      for (const k of [-1, 0, 1]) add(b, 'knob', tr(cyl(0.017, 0.017, 0.022, 20), cx + k * 0.09, oy + 0.235, zf + 0.01, 0, Math.PI / 2));
+    } else door(plinth, y1, c.w, cx);
+    x0 += c.w;
+  }
+  if (p.ends) for (const s of [-1, 1]) add(b, 'body', tr(rbox(0.02, h, d, 0.002), s * (W / 2 + 0.01), h / 2, 0));
+  return b;
+}
+// A lowered veneered ceiling over a corridor (Gourmet Kitchen hall, KITCHEN-INVENTORY item 8): a flat panel w wide
+// (x) and l long (z) with its underside at p.y, a lit slot along one long edge (p.slot -1 / 1 for the -x / +x side)
+// and recessed downlights down the middle every p.every metres
+function soffit(p: P): Built {
+  const w = p.w || 1.1, l = p.l || 4, y = p.y || 2.95, t = 3.1 - y, sw = 0.05;
+  const b: Built = { parts: {}, slots: { panel: { label: 'Ceiling', kind: 'wood', def: p.mat || 'veneer-limed' } }, fixed: { led: 'led-warm', trim: 'black-steel', bulb: 'bulb' } };
+  const sx = p.slot ? p.slot * (w / 2 - sw / 2) : null, pw = p.slot ? w - sw : w, px = p.slot ? -p.slot * (sw / 2) : 0;
+  add(b, 'panel', tr(rbox(pw, t, l, 0.003), px, y + t / 2, 0));
+  if (sx !== null) add(b, 'led', tr(rbox(sw - 0.01, 0.01, l - 0.02, 0.002), sx, y + 0.06, 0));
+  const every = p.every || 1.6, n = Math.max(1, Math.floor(l / every));
+  for (let i = 0; i < n; i++) {
+    const z = -l / 2 + (l * (i + 0.5)) / n;
+    add(b, 'trim', tr(cyl(0.045, 0.045, 0.006, 20), px, y - 0.004, z));
+    add(b, 'bulb', tr(cyl(0.03, 0.03, 0.004, 20), px, y - 0.006, z));
+  }
+  return b;
+}
+// Gourmet Kitchen (KITCHEN-INVENTORY item 6): the bar in the hall recess. Base cupboards faced in black speckled
+// granite around an under-counter wine cooler, a marble top, a book-matched marble splashback, and two staggered rows
+// of open bronze boxes lit from inside against a charcoal niche wall. The back is at -z, the counter front at +z.
+function bar(p: P): Built {
+  const w = p.w || 2.5, d = p.d || 0.42, h = 0.9, t = 0.03, plinth = 0.08, zb = -d / 2, zf = d / 2;
+  const sh = p.splashH || 0.55, top = p.top || 2.6;
+  const b: Built = { parts: {}, slots: {
+    front: { label: 'Cupboard fronts', kind: 'stone', def: p.front || 'stone-speckle' },
+    worktop: { label: 'Worktop', kind: 'stone', def: p.worktop || 'marble-bar' },
+    splash: { label: 'Splashback', kind: 'stone', def: p.splash || 'marble-splash' },
+    shelf: { label: 'Display boxes', kind: 'metal', def: p.shelf || 'bronze-satin' }
+  }, fixed: { gap: 'black-steel', back: 'ceramic-black', led: 'led-warm', steel: 'nickel', glass: 'glass-smoke', rack: 'oak', bottle: 'glass-wine', stem: 'glass-clear' }, noShadow: ['glass', 'stem'] };
+  add(b, 'gap', tr(rbox(w, h - t - plinth, d - 0.04, 0.002), 0, plinth + (h - t - plinth) / 2, -0.02));
+  add(b, 'gap', tr(rbox(w, plinth, d - 0.1, 0.001), 0, plinth / 2, -0.05));
+  add(b, 'worktop', tr(rbox(w, t, d + 0.02, 0.004), 0, h - t / 2, 0.01));
+  // doors of about half a metre either side of the wine cooler
+  const cw = 0.6, cx = p.cooler ?? 0.15, y0 = plinth + 0.003, y1 = h - t - 0.003, fz = zf - 0.03;
+  const run = (a: number, c: number) => { const n = Math.max(1, Math.round((c - a) / 0.5)); for (let i = 0; i < n; i++) { const xa = a + ((c - a) * i) / n, xb = a + ((c - a) * (i + 1)) / n; add(b, 'front', tr(rbox(xb - xa - 0.006, y1 - y0, 0.02, 0.002), (xa + xb) / 2, (y0 + y1) / 2, fz)); } };
+  run(-w / 2, cx - cw / 2); run(cx + cw / 2, w / 2);
+  // wine cooler: steel frame, smoked glass, warm-lit oak racks of bottles lying neck out
+  const ch = y1 - y0, cyc = (y0 + y1) / 2, fw = 0.03;
+  for (const [x, y, bw, bh] of [[cx, y1 - fw / 2, cw - 0.006, fw], [cx, y0 + fw / 2, cw - 0.006, fw], [cx - cw / 2 + fw / 2, cyc, fw, ch], [cx + cw / 2 - fw / 2, cyc, fw, ch]]) add(b, 'steel', tr(rbox(bw, bh, 0.025, 0.002), x, y, fz));
+  add(b, 'glass', tr(new THREE.PlaneGeometry(cw - 2 * fw, ch - 2 * fw), cx, cyc, fz + 0.008));
+  add(b, 'steel', tr(cyl(0.008, 0.008, ch - 0.12, 12), cx - cw / 2 + 0.06, y0 + 0.06, fz + 0.04));
+  add(b, 'led', tr(rbox(cw - 0.1, 0.008, 0.02, 0.002), cx, y1 - fw - 0.01, fz - 0.05));
+  const levels = 6;
+  for (let i = 0; i < levels; i++) {
+    const ly = y0 + fw + 0.02 + ((ch - 2 * fw - 0.08) * i) / (levels - 1);
+    add(b, 'rack', tr(rbox(cw - 2 * fw - 0.01, 0.012, d - 0.12, 0.002), cx, ly, -0.03));
+    for (let k = 0; k < 5; k++) {
+      const bx = cx - (cw - 2 * fw) / 2 + 0.055 + k * 0.1;
+      add(b, 'bottle', tr(cyl(0.037, 0.037, 0.24, 14), bx, ly + 0.044, fz - 0.33, 0, Math.PI / 2));
+      add(b, 'bottle', tr(cyl(0.013, 0.033, 0.07, 10), bx, ly + 0.044, fz - 0.09, 0, Math.PI / 2));
+    }
+  }
+  // splashback and the charcoal niche wall above it
+  const splash = new THREE.PlaneGeometry(w, sh);
+  add(b, 'splash', tr(splash, 0, h + sh / 2, zb + 0.004));
+  add(b, 'back', tr(new THREE.PlaneGeometry(w, top - h - sh), 0, (h + sh + top) / 2, zb + 0.003));
+  // open boxes: [centre x, width, bottom y]; each lit along its top, a few glasses in the lower row
+  const bt = 0.012, bh = 0.36, bd = 0.3, bz = zb + 0.02 + bd / 2;
+  const boxes: [number, number, number][] = p.boxes || [[-0.82, 0.56, h + sh], [0.02, 0.6, h + sh], [0.84, 0.54, h + sh], [-0.42, 0.6, h + sh + bh + 0.1], [0.46, 0.58, h + sh + bh + 0.1]];
+  boxes.forEach(([x, bw, by], j) => {
+    add(b, 'shelf', tr(rbox(bw, bt, bd, 0.002), x, by + bt / 2, bz));
+    add(b, 'shelf', tr(rbox(bw, bt, bd, 0.002), x, by + bh - bt / 2, bz));
+    for (const s of [-1, 1]) add(b, 'shelf', tr(rbox(bt, bh, bd, 0.002), x + (s * (bw - bt)) / 2, by + bh / 2, bz));
+    add(b, 'led', tr(rbox(bw - 0.05, 0.006, 0.014, 0.002), x, by + bh - bt - 0.004, bz + bd / 2 - 0.03));
+    if (by < h + sh + 0.01) for (let k = 0; k < 3; k++) {
+      const gx = x - bw / 2 + 0.12 + k * ((bw - 0.24) / 2), gz = bz + 0.04 - (j % 2) * 0.05;
+      add(b, 'stem', tr(cyl(0.035, 0.03, 0.1, 16), gx, by + bt + 0.12, gz));
+      add(b, 'stem', tr(cyl(0.004, 0.004, 0.12, 6), gx, by + bt, gz));
+    }
+  });
   return b;
 }
 function counter(p: P): Built {
@@ -517,8 +756,25 @@ function shelving(p: P): Built {
   const b: Built = { parts: {}, slots: {
     body: { label: 'Joinery', kind: 'wood', def: p.body || 'walnut' },
     shelf: { label: 'Shelves', kind: 'top', def: p.shelf || 'bronze' }
-  }, fixed: { obj1: 'ceramic-stone', obj2: 'lacquer-clay', obj3: 'leather-tan', bulb: 'bulb', bottle: 'glass-bronze' } };
+  }, fixed: { obj1: 'ceramic-stone', obj2: 'lacquer-clay', obj3: 'leather-tan', bulb: 'bulb', bottle: p.bottle || 'glass-bronze' } };
+  if (p.stoneBack) {
+    // a backlit stone niche (Formal Dining display wall): the back panel in stone, warm LED strips under the shelves
+    b.slots.back = { label: 'Back panel', kind: 'stone', def: p.stoneBack };
+    b.fixed!.bulb = 'led-warm';
+    add(b, 'back', tr(rbox(w - 0.08, h - 0.56, 0.02, 0.002), 0, 0.5 + (h - 0.56) / 2, -d / 2 + 0.05));
+  }
   add(b, 'body', tr(rbox(w, h, 0.04, 0.004), 0, h / 2, -d / 2 + 0.02));
+  if (p.wine) {
+    // a wine wall sits behind full-height smoked glass doors on slim bronze frames (Grand Living photos)
+    b.slots.glass = { label: 'Door glass', kind: 'glass', def: p.glass || 'glass-smoke' };
+    b.fixed!.frame = 'bronze';
+    b.noShadow = ['glass'];
+    b.fixed!.bulb = 'led-warm';
+    add(b, 'glass', tr(new THREE.PlaneGeometry(w - 0.06, h - 0.56), 0, 0.5 + (h - 0.56) / 2, d / 2 + 0.005));
+    const doors = Math.max(1, Math.round(w / 0.75));
+    for (let i = 0; i <= doors; i++) add(b, 'frame', tr(rbox(0.022, h - 0.54, 0.018, 0.003), -w / 2 + 0.03 + ((w - 0.06) * i) / doors, 0.5 + (h - 0.54) / 2, d / 2 + 0.012));
+    for (const y of [0.5, h - 0.06]) add(b, 'frame', tr(rbox(w - 0.04, 0.02, 0.018, 0.003), 0, y, d / 2 + 0.012));
+  }
   for (const sx of [-1, 1]) add(b, 'body', tr(rbox(0.04, h, d, 0.004), sx * (w / 2 - 0.02), h / 2, 0));
   add(b, 'body', tr(rbox(w, 0.06, d, 0.004), 0, h - 0.03, 0));
   add(b, 'body', tr(rbox(w, 0.5, d, 0.004), 0, 0.25, 0));
@@ -542,6 +798,66 @@ function shelving(p: P): Built {
       else { add(b, 'obj2', tr(lathe([[0, 0], [0.09, 0], [0.12, 0.05], [0.12, 0.06], [0, 0.05]], 24), x + 0.1, y + 0.012, 0)); x += 0.3; }
     }
   }
+  return b;
+}
+// A framed artwork hanging on the wall behind its origin, facing +z, centred at height p.cy. The canvas material
+// carries the picture itself (straightened from the 360 photos), spanning the canvas once.
+function art(p: P): Built {
+  const w = p.w || 1, h = p.h || 1.4, cy = p.cy ?? 1.6, fw = p.fw ?? 0.022, fd = p.fd ?? 0.04;
+  const b: Built = { parts: {}, slots: { frame: { label: 'Frame', kind: 'metal', def: p.frame || 'black-steel' } }, fixed: { canvas: p.art || 'art-stones-a' } };
+  add(b, 'canvas', tr(new THREE.PlaneGeometry(w - 2 * fw + 0.004, h - 2 * fw + 0.004), 0, cy, fd - 0.006));
+  for (const [x, y, bw, bh] of [[0, cy + h / 2 - fw / 2, w, fw], [0, cy - h / 2 + fw / 2, w, fw], [-w / 2 + fw / 2, cy, fw, h - 2 * fw], [w / 2 - fw / 2, cy, fw, h - 2 * fw]]) add(b, 'frame', tr(rbox(bw, bh, fd, 0.003), x, y, fd / 2));
+  add(b, 'frame', tr(rbox(w - 0.01, h - 0.01, 0.01, 0.001), 0, cy, 0.006)); // backing board
+  return b;
+}
+// A full-height wall pier clad in veneer, with a dark joint above a base panel (the wine-room piers in Grand Living)
+function pier(p: P): Built {
+  const w = p.w || 1.4, d = p.d || 0.3, h = p.h || 3.1, jy = p.joint ?? 0.56;
+  const b: Built = { parts: {}, slots: { cladding: { label: 'Cladding', kind: 'wood', def: p.mat || 'veneer-limed' } }, fixed: { joint: 'black-steel' } };
+  add(b, 'cladding', tr(rbox(w, h, d, 0.004), 0, h / 2, 0));
+  add(b, 'joint', tr(rbox(w + 0.004, 0.008, d + 0.004, 0.001), 0, jy, 0));
+  return b;
+}
+// A full-height glass screen on slim black channels, with a veneered bulkhead above carrying a linear air grille;
+// p.open leaves the glass out (a doorway under the bulkhead)
+function glassScreen(p: P): Built {
+  const w = p.w || 1.2, h = p.h || 3.1, gh = p.gh ?? 2.55;
+  const b: Built = { parts: {}, slots: {
+    glass: { label: 'Glass', kind: 'glass', def: p.glass || 'glass-wine' },
+    bulkhead: { label: 'Bulkhead', kind: 'wood', def: p.bulk || 'veneer-smoked' }
+  }, fixed: { frame: 'black-steel' }, noShadow: ['glass'] };
+  if (!p.open) {
+    add(b, 'glass', tr(new THREE.PlaneGeometry(w, gh - 0.03), 0, (gh - 0.03) / 2 + 0.02, 0));
+    add(b, 'frame', tr(rbox(w, 0.02, 0.03, 0.002), 0, 0.01, 0));
+  }
+  add(b, 'frame', tr(rbox(w, 0.025, 0.03, 0.002), 0, gh, 0));
+  if (h > gh + 0.05) {
+    const bh = h - gh - 0.0125;
+    add(b, 'bulkhead', tr(rbox(w, bh, 0.24, 0.003), 0, gh + 0.0125 + bh / 2, -0.1));
+    for (const y of [h - 0.12, h - 0.16, h - 0.2]) add(b, 'frame', tr(rbox(w - 0.12, 0.012, 0.01, 0.001), 0, y, 0.022));
+  }
+  return b;
+}
+// A box range hood hung from the ceiling over a kitchen island: a slim chimney and a shallow canopy
+function hood(p: P): Built {
+  const w = p.w || 0.9, d = p.d || 0.55, y = p.y || 2.25, top = 3.1;
+  const b: Built = { parts: {}, slots: { body: { label: 'Hood', kind: 'metal', def: p.mat || 'nickel' } }, fixed: { grille: 'black-steel', lamp: 'lamp-frost' } };
+  if (p.style === 'canopy') {
+    // Gourmet Kitchen (KITCHEN-INVENTORY item 4): a broad stainless canopy hung on rods from the ceiling, its
+    // underside three slotted grease filters with a round light at either end
+    const hh = p.hh || 0.3, fw = (w - 0.4) / 3, fd = d - 0.18;
+    add(b, 'body', tr(rbox(w, hh, d, 0.012), 0, y + hh / 2, 0));
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(b, 'body', tr(cyl(0.007, 0.007, top - y - hh, 8), sx * (w / 2 - 0.1), y + hh, sz * (d / 2 - 0.1)));
+    for (let i = 0; i < 3; i++) {
+      const fx = -w / 2 + 0.2 + fw * (i + 0.5), nx = 6, nz = 5, cw = (fw - 0.04) / nx, cd = (fd - 0.04) / nz;
+      add(b, 'body', tr(rbox(fw - 0.02, 0.006, fd, 0.002), fx, y - 0.001, 0));
+      for (let a = 0; a < nx; a++) for (let c = 0; c < nz; c++) add(b, 'grille', tr(rbox(cw - 0.022, 0.004, cd - 0.022, 0.001), fx - (fw - 0.04) / 2 + cw * (a + 0.5), y - 0.005, -(fd - 0.04) / 2 + cd * (c + 0.5)));
+    }
+    for (const sx of [-1, 1]) add(b, 'lamp', tr(cyl(0.045, 0.045, 0.006, 24), sx * (w / 2 - 0.1), y - 0.005, 0));
+    return b;
+  }
+  add(b, 'body', tr(rbox(0.34, top - y - 0.06, 0.28, 0.004), 0, y + 0.06 + (top - y - 0.06) / 2, 0));
+  add(b, 'body', tr(rbox(w, 0.06, d, 0.006), 0, y + 0.03, 0));
   return b;
 }
 function wardrobe(p: P): Built {
@@ -592,9 +908,23 @@ function decor(p: P): Built {
     add(b, 'd', tr(rbox(0.45, 0.02, 0.3, 0.008), 0, 0.01, 0));
     add(b, 'a', tr(lathe([[0, 0], [0.04, 0], [0.045, 0.12], [0, 0.12]], 20), -0.1, 0.02, 0));
     add(b, 'c', tr(lathe([[0, 0], [0.035, 0], [0.04, 0.18], [0, 0.18]], 20), 0.08, 0.02, 0.03));
+  } else if (st === 'pampas') {
+    // a glass vase of dried pampas plumes (Formal Dining table)
+    b.fixed = { ...b.fixed, v: 'glass-clear', stem: 'linen-flax', plume: 'pampas' };
+    add(b, 'v', lathe([[0, 0], [0.07, 0], [0.085, 0.08], [0.06, 0.24], [0.065, 0.3], [0.058, 0.3], [0.052, 0.24], [0.077, 0.08], [0.062, 0.006], [0, 0.006]], 32));
+    const r = rand(p.seed || 11);
+    for (let i = 0; i < 34; i++) {
+      const az = r() * Math.PI * 2, tilt = 0.15 + r() * 0.6, L = 0.3 + r() * 0.2;
+      const dx = Math.sin(tilt) * Math.cos(az), dy = Math.cos(tilt), dz = Math.sin(tilt) * Math.sin(az);
+      add(b, 'stem', tube([[0, 0.05, 0], [dx * L, 0.05 + dy * L, dz * L]], 0.003, 4));
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, dy, dz));
+      add(b, 'plume', sphere(1, 10, 8).scale(0.045 + r() * 0.02, 0.12 + r() * 0.05, 0.045).applyQuaternion(q).translate(dx * (L + 0.06), 0.05 + dy * (L + 0.06), dz * (L + 0.06)));
+    }
   } else if (st === 'candles') {
     for (let i = 0; i < 3; i++) add(b, 'd', tr(lathe([[0, 0], [0.03, 0], [0.012, 0.02], [0.008, 0.18 + i * 0.05], [0.02, 0.2 + i * 0.05], [0, 0.2 + i * 0.05]], 16), (i - 1) * 0.12, 0, 0));
   }
+  // p.lift raises the piece onto a surface (decor is placed from the floor)
+  if (p.lift) for (const gs of Object.values(b.parts)) for (const g of gs) g.translate(0, p.lift, 0);
   return b;
 }
 
@@ -751,6 +1081,6 @@ function canopyTree(p: P): Built {
 }
 
 export const BUILDERS: Record<string, (p: P) => Built> = {
-  sofa, armchair, diningChair, table, bed, nightstand, lamp, bench, rug, plant, sculpture, island, counter, vanity, tub, wc, shelving, wardrobe, daybed, decor,
+  sofa, armchair, diningChair, table, bed, nightstand, lamp, bench, rug, plant, sculpture, island, counter, vanity, tub, wc, shelving, wardrobe, daybed, decor, art, pier, glassScreen, hood, tallRun, bar, soffit,
   pool, lounger, cabana, treadmill, bike, reformer, weights, massage, reception, car, bollard, lockers, hotpool, steamBench, canopyTree
 };

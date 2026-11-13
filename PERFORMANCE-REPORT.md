@@ -45,7 +45,7 @@ The background work takes about 2 s right after the page appears. Its own main-t
 
 **Trade-off:** every visitor downloads the night sky (1.7 MB) in the background, including those who never switch to Night.
 
-**Still to confirm:** that the Day view looks exactly the same after the background warm-up. One test came out bit-for-bit identical, but the browser pane went hidden during it, so it isn't certain the redraw happened. The shaders are byte-for-byte the same as before; 3b only changes *when* they are compiled.
+**Look confirmed:** after the background warm-up, a freshly drawn Day view is **100% bit-for-bit identical** to the build without 3b, at full 2560 × 1600 resolution. After the warm-up, switching to Night needs only the 3 small glow-effect shaders, and Night + Full walls needs none. A Day → Night → Full walls → Day round trip leaves tiny differences (1–2 levels out of 255, invisible), but those appear identically without 3b (80.92% identical, max 110, in both), so they're existing app behaviour rather than something 3b introduced.
 
 **Not done yet:** fixes 6–7 and the tidy-ups.
 

@@ -90,11 +90,44 @@ export function buildMaterial(d: MatDef): THREE.MeshPhysicalMaterial {
     m.ior = d.ior || 1.5;
   }
   if (d.emissive) { m.emissive = new THREE.Color(d.emissive); m.emissiveIntensity = d.emissiveIntensity || 0; }
+  if (d.glow && m.map) { m.emissive = new THREE.Color('#ffffff'); m.emissiveMap = m.map; m.emissiveIntensity = d.glow; }
+  if (d.normal && (d.normal.includes('fab_pebble') || d.normal.includes('fab_boucle'))) triplanar(m, rep);
   if (d.kind === 'foliage') {
     m.side = THREE.DoubleSide;
     if (d.map && d.map.endsWith('.png')) { m.alphaTest = 0.5; m.map!.repeat.set(1, 1); m.map!.wrapS = m.map!.wrapT = THREE.ClampToEdgeWrapping; }
   }
   return m;
+}
+
+// Seamless texturing for rounded upholstery: the colour and normal maps are projected along the three world
+// axes and blended by which way the surface faces (triplanar, with Ben Golus's whiteout normal blend), so the
+// pebble boucle has no seams where a curved surface turns from one projection to the next. scale = repeats per metre.
+function triplanar(m: THREE.MeshPhysicalMaterial, scale: number) {
+  m.customProgramCacheKey = () => 'triplanar';
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.triScale = { value: scale };
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvTriPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvTriNrm = normalize(mat3(modelMatrix) * objectNormal);');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;\nuniform float triScale;\nvec3 triW() { vec3 w = pow(abs(normalize(vTriNrm)), vec3(4.0)); return w / (w.x + w.y + w.z); }')
+      .replace('#include <map_fragment>', `#ifdef USE_MAP
+        { vec3 w = triW(); vec3 q = vTriPos * triScale;
+          diffuseColor *= texture2D(map, q.zy) * w.x + texture2D(map, q.xz) * w.y + texture2D(map, q.xy) * w.z; }
+      #endif`)
+      .replace('#include <normal_fragment_maps>', `#ifdef USE_NORMALMAP
+        { vec3 w = triW(); vec3 q = vTriPos * triScale;
+          vec3 wn = normalize(vTriNrm) * faceDirection;
+          vec3 tx = texture2D(normalMap, q.zy).xyz * 2.0 - 1.0; tx.xy *= normalScale;
+          vec3 ty = texture2D(normalMap, q.xz).xyz * 2.0 - 1.0; ty.xy *= normalScale;
+          vec3 tz = texture2D(normalMap, q.xy).xyz * 2.0 - 1.0; tz.xy *= normalScale;
+          tx = vec3(tx.xy + wn.zy, abs(tx.z) * wn.x);
+          ty = vec3(ty.xy + wn.xz, abs(ty.z) * wn.y);
+          tz = vec3(tz.xy + wn.xy, abs(tz.z) * wn.z);
+          vec3 n = normalize(tx.zyx * w.x + ty.xzy * w.y + tz.xyz * w.z);
+          normal = normalize((viewMatrix * vec4(n, 0.0)).xyz); }
+      #endif`);
+  };
 }
 
 export function getMat(id: string): THREE.MeshPhysicalMaterial {
@@ -152,7 +185,17 @@ export function archMat(id: string): THREE.Material {
       m = new THREE.MeshStandardMaterial({ color: '#c8ccce', roughness: 0.02, metalness: 1, envMapIntensity: 1.4 });
       break;
     case 'sheer':
-      m = new THREE.MeshPhysicalMaterial({ color: '#f3efe8', roughness: 0.95, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') });
+      m = new THREE.MeshPhysicalMaterial({ color: '#f3efe8', roughness: 0.95, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') });
+      break;
+    case 'drape': // oatmeal linen side drapes
+      m = new THREE.MeshPhysicalMaterial({ color: '#e2d9ca', roughness: 0.92, side: THREE.DoubleSide, sheen: 0.5, sheenRoughness: 0.8, sheenColor: new THREE.Color('#f4eee4') });
+      break;
+    case 'lightTrim': // black downlight baffles and light tracks
+      m = new THREE.MeshStandardMaterial({ color: '#1f1f21', roughness: 0.55, metalness: 0.2, side: THREE.DoubleSide });
+      break;
+    case 'ceiling': // seen from below only (back side of an upward plane)
+      // a little self-light stands in for the light bounced up off the floor, which the renderer does not trace
+      m = new THREE.MeshStandardMaterial({ color: '#f2f0eb', roughness: 0.95, side: THREE.BackSide, emissive: '#efebe4', emissiveIntensity: 0.5 });
       break;
     case 'liftDoor':
       m = new THREE.MeshStandardMaterial({ color: '#4a3b2e', roughness: 0.3, metalness: 0.8 });
@@ -179,6 +222,10 @@ export function setCut(on: boolean, h: number) {
   cutPlane.constant = h;
   matCache.forEach(applyCut);
 }
+
+// Move the cut while the walls grow back (stepping into a 360 view) or come down again
+export function setCutHeight(h: number) { cutPlane.constant = h; }
+export const isCutOn = () => cutOn;
 
 // Run fn with the cut-away switched on or off, then put it back (used to compile the other wall mode ahead of time)
 export function withCut(on: boolean, fn: () => void) {

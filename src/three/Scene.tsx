@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, ThreeEvent, useFrame, useThree, addEffect, addAfterEffect, addTail, invalidate } from '@react-three/fiber';
 import { Html, Line } from '@react-three/drei';
@@ -8,6 +8,7 @@ import { Architecture } from './Architecture';
 import { Furniture } from './Furniture';
 import { Lighting, nightLightRig, preloadNightSky } from './Lighting';
 import { CameraRig } from './CameraRig';
+import { Dive } from './Dive';
 import { Capture } from './Capture';
 import { useStore } from '../store';
 import { rooms, wx, wz, S, CX, CY, Room } from '../data/plan';
@@ -46,19 +47,60 @@ function RoomOverlay() {
     }
     return m;
   }, []);
-  const show = [roomId, hover && hover !== roomId ? hover : null].filter(Boolean) as string[];
+  // Highlights fade in and out (about 0.25 s) instead of popping. A room stays drawn until it has faded away.
+  const inside = useStore((s) => s.inside);
+  const want = useRef(new Set<string>());
+  want.current = inside ? new Set<string>() : new Set([roomId, hover].filter(Boolean) as string[]);
+  const [drawn, setDrawn] = useState<string[]>([]);
+  const fade = useRef(new Map<string, number>());
+  const parts = useRef(new Map<string, { fill?: THREE.MeshBasicMaterial | null; line?: { material: { opacity: number } } | null }>());
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    setDrawn((d) => {
+      const add = [...want.current].filter((id) => !d.includes(id));
+      return add.length ? [...d, ...add] : d;
+    });
+    invalidate();
+  }, [roomId, hover, inside, invalidate]);
+  const apply = (id: string) => {
+    const a = fade.current.get(id) ?? 0, p = parts.current.get(id);
+    const sel = id === useStore.getState().roomId;
+    if (p?.fill) p.fill.opacity = a * (sel ? 0.16 : 0.14);
+    if (p?.line) p.line.material.opacity = a * 0.95;
+  };
+  const part = (id: string) => { let p = parts.current.get(id); if (!p) { p = {}; parts.current.set(id, p); } return p; };
+  useFrame((state, dt) => {
+    let moving = false;
+    const gone: string[] = [];
+    const k = 1 - Math.exp(-dt * 11);
+    for (const id of drawn) {
+      const target = want.current.has(id) ? 1 : 0;
+      let a = fade.current.get(id) ?? 0;
+      a += (target - a) * k;
+      if (Math.abs(target - a) < 0.01) a = target;
+      else moving = true;
+      fade.current.set(id, a);
+      apply(id);
+      if (a === 0 && target === 0) gone.push(id);
+    }
+    if (moving) state.invalidate();
+    if (gone.length) {
+      for (const id of gone) { fade.current.delete(id); parts.current.delete(id); }
+      setDrawn((d) => d.filter((id) => !gone.includes(id)));
+    }
+  });
   return (
     <group>
-      {show.map((id) => {
+      {drawn.map((id) => {
         const s = shapes.get(id);
         if (!s) return null;
         const sel = id === roomId;
         return (
           <group key={id}>
             <mesh geometry={s.geo} position={[0, 0.02, 0]} renderOrder={3}>
-              <meshBasicMaterial color={sel ? '#c9a66b' : '#ffffff'} transparent opacity={sel ? 0.16 : 0.14} depthWrite={false} toneMapped={false} />
+              <meshBasicMaterial ref={(m: THREE.MeshBasicMaterial | null) => { part(id).fill = m; if (m) apply(id); }} color={sel ? '#c9a66b' : '#ffffff'} transparent depthWrite={false} toneMapped={false} />
             </mesh>
-            <Line points={s.line} color={sel ? '#b8925a' : '#ffffff'} lineWidth={sel ? 2.4 : 1.6} transparent opacity={0.95} renderOrder={4} />
+            <Line ref={(l: any) => { part(id).line = l; if (l) apply(id); }} points={s.line} color={sel ? '#b8925a' : '#ffffff'} lineWidth={sel ? 2.4 : 1.6} transparent renderOrder={4} />
           </group>
         );
       })}
@@ -70,7 +112,7 @@ function Pins() {
   const roomId = useStore((s) => s.roomId);
   const hover = useStore((s) => s.hoverRoom);
   const showPins = useStore((s) => s.showPins);
-  const selectRoom = useStore((s) => s.selectRoom);
+  const openRoom = useStore((s) => s.openRoom);
   const set = useStore((s) => s.set);
   const walls = useStore((s) => s.walls);
   if (!showPins) return null;
@@ -83,7 +125,7 @@ function Pins() {
           <Html key={r.id} position={[wx(r.pin[0]), y, wz(r.pin[1])]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
             <button
               className={'pin' + (active ? ' active' : '') + (hot ? ' hot' : '') + (roomId && !active ? ' dim' : '') + (r.zone === 'outdoor' ? ' out' : '')}
-              onClick={(e) => { e.stopPropagation(); selectRoom(r.id); set({ panel: null }); }}
+              onClick={(e) => { e.stopPropagation(); openRoom(r.id); }}
               onPointerEnter={() => set({ hoverRoom: r.id })}
               onPointerLeave={() => { if (useStore.getState().hoverRoom === r.id) set({ hoverRoom: null }); }}
               aria-label={r.name}
@@ -113,7 +155,7 @@ function FloorPicker() {
   const onClick = (e: ThreeEvent<MouseEvent>) => {
     if (e.delta > 6) return;
     const r = roomAt(e.point.x, e.point.z);
-    if (r) { selectRoom(r.id); set({ panel: null }); }
+    if (r) selectRoom(r.id);
   };
   const onMove = (e: ThreeEvent<PointerEvent>) => {
     const r = roomAt(e.point.x, e.point.z);
@@ -137,7 +179,8 @@ function Effects() {
       {hi ? <N8AO aoRadius={0.55} distanceFalloff={0.6} intensity={2.4} quality="medium" halfRes={false} color={new THREE.Color('#2a2420')} /> : <></>}
       <Outline visibleEdgeColor={0xc89b55} hiddenEdgeColor={0x7a6a50} edgeStrength={5} blur width={1600} xRay={false} />
       {time === 'night' ? <Bloom intensity={0.7} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur /> : <></>}
-      <ToneMapping mode={ToneMappingMode.AGX} />
+      {/* ACES filmic: more depth and contrast than AgX on the boucle and stone (Grand Living lighting review, work/i2t) */}
+      <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Vignette offset={0.32} darkness={0.32} blendFunction={BlendFunction.NORMAL} />
       <SMAA />
     </EffectComposer>
@@ -279,6 +322,7 @@ export function VillaContent() {
         <PrewarmVariants />
       </Suspense>
       <CameraRig />
+      <Dive />
       <SteadyClock />
       <RedrawOnChange />
     </>

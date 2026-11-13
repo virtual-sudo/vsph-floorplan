@@ -1,7 +1,8 @@
-import { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useThree, invalidate } from '@react-three/fiber';
-import { plan, wx, wz, S, CX, CY, PLAN_W, PLAN_H, WALL_H, CUT_H, Pt, floorZones } from '../data/plan';
+import { useThree, useFrame, invalidate } from '@react-three/fiber';
+import { riseScale } from './Dive';
+import { plan, rooms, wx, wz, S, CX, CY, PLAN_W, PLAN_H, WALL_H, CUT_H, Pt, floorZones } from '../data/plan';
 import { archMat, getMat, setCut } from './matlib';
 import { refreshShadows } from './redraw';
 import { merge, worldUV, V2 } from './geo';
@@ -154,23 +155,44 @@ function mergeGroups(gs: THREE.BufferGeometry[]): THREE.BufferGeometry {
   return m;
 }
 
+// While stepping into a 360 view, the cut-away walls grow back: the full-height walls are shown, squashed down to
+// the cut height, and stretch up as the camera descends (the "rise" is driven by Dive).
+function useTall() {
+  const mode = useStore((s) => s.walls);
+  const inside = useStore((s) => s.inside);
+  return { cut: mode === 'cutaway' && !inside, tall: mode === 'cutaway' && inside };
+}
+function Rise({ on, children }: { on: boolean; children: React.ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const s = on ? riseScale() : 1;
+    if (g.current && g.current.scale.y !== s) g.current.scale.y = s;
+  });
+  return <group ref={g} scale={[1, on ? riseScale() : 1, 1]}>{children}</group>;
+}
+
 export function Walls() {
   const mode = useStore((s) => s.walls);
   const paint = useStore((s) => s.wallPaint);
-  const h = mode === 'cutaway' ? CUT_H : WALL_H;
-  const { walls, parts, glass, frame } = useWallGeometry(h);
+  const { cut, tall } = useTall();
+  // both heights are built up front, so switching between them never stalls
+  const low = useWallGeometry(CUT_H);
+  const high = useWallGeometry(WALL_H);
+  const { walls, parts, glass, frame } = cut ? low : high;
   const gl = useThree((s) => s.gl);
   useEffect(() => { gl.localClippingEnabled = true; setCut(mode === 'cutaway', CUT_H + 0.02); refreshShadows(); }, [mode, gl]);
   const side = getMat(paint);
   const cap = archMat('wallCap');
   return (
     <group>
-      <mesh geometry={walls} material={[cap, side]} castShadow receiveShadow name="walls" />
-      <mesh geometry={parts} material={side} castShadow receiveShadow />
-      <mesh geometry={glass} material={archMat('showerGlass')} renderOrder={2} />
-      <mesh geometry={frame} material={getMat('black-steel')} castShadow />
+      <Rise on={tall}>
+        <mesh geometry={walls} material={[cap, side]} castShadow receiveShadow name="walls" />
+        <mesh geometry={parts} material={side} castShadow receiveShadow />
+        <mesh geometry={glass} material={archMat('showerGlass')} renderOrder={2} />
+        <mesh geometry={frame} material={getMat('black-steel')} castShadow />
+        <Millwork height={cut ? CUT_H : WALL_H - 0.05} />
+      </Rise>
       <Skirting />
-      <Millwork height={mode === 'cutaway' ? CUT_H : WALL_H - 0.05} />
     </group>
   );
 }
@@ -248,7 +270,9 @@ function glazingGeometry(height: number) {
   return { glass: merge(glass), frame: merge(frame), slider: merge(slider), sliderFrame: merge(sliderFrame) };
 }
 
-// sheer curtains hang 18 cm inside the facade glass, with soft pleats
+// Curtains are drawn open, as in the photos: the facade is split into bays of about 4 m, and at each end of a bay
+// hangs a gathered stack of sheer (15 cm inside the glass) with a linen drape in front of it; the glass between
+// them stays clear.
 function inside(x: number, z: number) {
   const P = plan.interior; let c = false;
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
@@ -257,64 +281,179 @@ function inside(x: number, z: number) {
   }
   return c;
 }
+type Sheet = { pos: number[]; idx: number[] };
+// one gathered panel from s0 to s1 along a glazing run (s = distance along the run)
+function panel(out: Sheet, pts: V2[], cum: number[], side: number, s0: number, s1: number, off: number, amp: number, period: number, top: number) {
+  const steps = Math.max(2, Math.ceil((s1 - s0) / 0.011));
+  const base = out.pos.length / 3;
+  let i = 0;
+  for (let k = 0; k <= steps; k++) {
+    const s = s0 + ((s1 - s0) * k) / steps;
+    while (i < pts.length - 2 && cum[i + 1] < s) i++;
+    const len = cum[i + 1] - cum[i] || 1e-6, t = (s - cum[i]) / len;
+    const [x0, z0] = pts[i], [x1, z1] = pts[i + 1];
+    const tx = (x1 - x0) / len, tz = (z1 - z0) / len, nx = -tz * side, nz = tx * side;
+    const w = off + amp * Math.sin(((s - s0) / period) * Math.PI * 2);
+    const x = x0 + (x1 - x0) * t + nx * w, z = z0 + (z1 - z0) * t + nz * w;
+    out.pos.push(x, 0.02, z, x, top, z);
+  }
+  for (let k = 0; k < steps; k++) { const a = base + k * 2; out.idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+}
+function sheetGeometry(o: Sheet) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(o.pos, 3));
+  g.setIndex(o.idx);
+  g.computeVertexNormals();
+  return g;
+}
 function curtainGeometry(height: number) {
-  const pos: number[] = [], idx: number[] = [];
-  const top = height - 0.1;
+  const sheer: Sheet = { pos: [], idx: [] }, linen: Sheet = { pos: [], idx: [] };
+  const top = height - 0.06;
   for (const run of plan.glazing) {
     if (run.kind !== 'facade' || run.pts.length < 2) continue;
     const pts = run.pts.map(W);
-    let L = 0; for (let i = 0; i < pts.length - 1; i++) L += Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
+    const cum = [0];
+    for (let i = 0; i < pts.length - 1; i++) cum.push(cum[i] + Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]));
+    const L = cum[cum.length - 1];
     if (L < 1.2) continue;
     // which side is inside: test the middle of the run
     const m = Math.floor((pts.length - 1) / 2);
     const [ax, az] = pts[m], [bx, bz] = pts[m + 1];
     const dl = Math.hypot(bx - ax, bz - az) || 1;
-    let side = 1;
-    if (!inside((ax + bx) / 2 - ((bz - az) / dl) * 0.4, (az + bz) / 2 + ((bx - ax) / dl) * 0.4)) side = -1;
-    const base = pos.length / 3;
-    let s = 0, n = 0;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const [x0, z0] = pts[i], [x1, z1] = pts[i + 1];
-      const len = Math.hypot(x1 - x0, z1 - z0); if (len < 1e-4) continue;
-      const tx = (x1 - x0) / len, tz = (z1 - z0) / len, nx = -tz * side, nz = tx * side;
-      const steps = Math.max(1, Math.ceil(len / 0.045));
-      for (let k = (i === 0 ? 0 : 1); k <= steps; k++) {
-        const t = (k / steps) * len, ss = s + t;
-        const wave = 0.18 + 0.035 * Math.sin((ss / 0.16) * Math.PI * 2);
-        const x = x0 + tx * t + nx * wave, z = z0 + tz * t + nz * wave;
-        pos.push(x, 0.03, z, x, top, z);
-        n++;
-      }
-      s += len;
+    const side = inside((ax + bx) / 2 - ((bz - az) / dl) * 0.4, (az + bz) / 2 + ((bx - ax) / dl) * 0.4) ? 1 : -1;
+    const bays = Math.max(1, Math.round(L / 4.2)), bay = L / bays;
+    const sw = Math.min(0.6, bay * 0.14), lw = Math.min(0.42, bay * 0.1);
+    for (let k = 0; k <= bays; k++) {
+      const c = k * bay;
+      // a stack each side of a bay division; one at each end of the run
+      const [s0, s1] = k === 0 ? [0, sw] : k === bays ? [L - sw, L] : [c - sw * 0.6, c + sw * 0.6];
+      const [l0, l1] = k === 0 ? [0, lw] : k === bays ? [L - lw, L] : [c - lw * 0.55, c + lw * 0.55];
+      panel(sheer, pts, cum, side, s0, s1, 0.15, 0.04, 0.085, top);
+      panel(linen, pts, cum, side, l0, l1, 0.25, 0.05, 0.13, top);
     }
-    for (let k = 0; k < n - 1; k++) { const a = base + k * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
   }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setIndex(idx);
-  g.computeVertexNormals();
-  return g;
+  return { sheer: sheetGeometry(sheer), linen: sheetGeometry(linen) };
 }
 export function Curtains() {
-  const mode = useStore((s) => s.walls);
   const finish = useStore((s) => s.finish);
-  const h = mode === 'cutaway' ? CUT_H : WALL_H;
-  const g = useMemo(() => curtainGeometry(h), [h]);
+  const { cut, tall } = useTall();
+  const low = useMemo(() => curtainGeometry(CUT_H), []);
+  const high = useMemo(() => curtainGeometry(WALL_H), []);
   if (finish !== 'dressed') return null;
-  return <mesh geometry={g} material={archMat('sheer')} renderOrder={1} />;
+  const g = cut ? low : high;
+  return (
+    <Rise on={tall}>
+      <mesh geometry={g.sheer} material={archMat('sheer')} renderOrder={1} />
+      <mesh geometry={g.linen} material={archMat('drape')} castShadow receiveShadow />
+    </Rise>
+  );
+}
+
+// ---------- ceiling ----------
+// A flat white ceiling over the interior at wall height. Only its underside is drawn, so from the overview (above)
+// the home stays open and from eye level (inside a room, full-height walls) the room is closed like in the photos.
+// It casts no shadow: the sun still reaches the rooms through the open top, as before.
+export function Ceiling() {
+  const { cut, tall } = useTall();
+  const geo = useMemo(() => {
+    const g = new THREE.ShapeGeometry(shapeFrom(plan.interior.map(W)), 1);
+    g.rotateX(-Math.PI / 2);
+    g.translate(0, WALL_H - 0.002, 0);
+    return worldUV(g);
+  }, []);
+  if (cut) return null;
+  return <Rise on={tall}><mesh geometry={geo} material={archMat('ceiling')} receiveShadow name="ceiling" /></Rise>;
+}
+
+// ---------- ceiling lights ----------
+// Recessed downlights on a grid in every indoor room, plus the black linear tracks with adjustable spots that the
+// Grand Living photos show (measured from view 12 at the app's ceiling height). They hang off the ceiling, so they
+// are drawn only while the camera is below it: from the overview the home stays open.
+const TRACKS: { a: Pt; b: Pt; spots: number }[] = [
+  { a: [1872, 462], b: [1872, 915], spots: 7 },
+  { a: [1899, 500], b: [2012, 500], spots: 2 }
+];
+function inPoly(P: V2[], x: number, z: number) {
+  let c = false;
+  for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+    const [xi, zi] = P[i], [xj, zj] = P[j];
+    if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c;
+  }
+  return c;
+}
+function nearTrack(x: number, z: number, d: number) {
+  for (const t of TRACKS) {
+    const [ax, az] = W(t.a), [bx, bz] = W(t.b), ex = bx - ax, ez = bz - az, L2 = ex * ex + ez * ez;
+    const k = Math.max(0, Math.min(1, ((x - ax) * ex + (z - az) * ez) / L2));
+    if (Math.hypot(ax + ex * k - x, az + ez * k - z) < d) return true;
+  }
+  return false;
+}
+function downlightSpots(): V2[] {
+  const out: V2[] = [], step = 1.75, inset = 0.65, m = 0.45;
+  for (const r of rooms) {
+    if (r.zone === 'outdoor') continue;
+    const P = r.poly.map(W);
+    const xs = P.map((p) => p[0]), zs = P.map((p) => p[1]);
+    const x0 = Math.min(...xs) + inset, x1 = Math.max(...xs) - inset, z0 = Math.min(...zs) + inset, z1 = Math.max(...zs) - inset;
+    if (x1 < x0 || z1 < z0) continue;
+    const nx = Math.floor((x1 - x0) / step) + 1, nz = Math.floor((z1 - z0) / step) + 1;
+    const ox = x0 + (x1 - x0 - (nx - 1) * step) / 2, oz = z0 + (z1 - z0 - (nz - 1) * step) / 2;
+    for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++) {
+      const x = ox + i * step, z = oz + k * step;
+      if (![[0, 0], [m, 0], [-m, 0], [0, m], [0, -m]].every(([dx, dz]) => inPoly(P, x + dx, z + dz))) continue;
+      if (nearTrack(x, z, 0.6)) continue;
+      out.push([x, z]);
+    }
+  }
+  return out;
+}
+export function CeilingLights() {
+  const { cut, tall } = useTall();
+  const g = useRef<THREE.Group>(null);
+  const geo = useMemo(() => {
+    const y = WALL_H - 0.004;
+    const baffle: THREE.BufferGeometry[] = [], lens: THREE.BufferGeometry[] = [], track: THREE.BufferGeometry[] = [];
+    for (const [x, z] of downlightSpots()) {
+      baffle.push(new THREE.CircleGeometry(0.055, 20).rotateX(Math.PI / 2).translate(x, y, z));
+      lens.push(new THREE.CircleGeometry(0.022, 14).rotateX(Math.PI / 2).translate(x, y - 0.003, z));
+    }
+    for (const t of TRACKS) {
+      const [ax, az] = W(t.a), [bx, bz] = W(t.b), len = Math.hypot(bx - ax, bz - az), ang = Math.atan2(bz - az, bx - ax);
+      track.push(new THREE.PlaneGeometry(len, 0.07).rotateX(Math.PI / 2).rotateY(-ang).translate((ax + bx) / 2, y, (az + bz) / 2));
+      for (let i = 0; i < t.spots; i++) {
+        const k = (i + 0.5) / t.spots, x = ax + (bx - ax) * k, z = az + (bz - az) * k;
+        track.push(new THREE.CylinderGeometry(0.03, 0.03, 0.075, 16, 1, true).translate(x, y - 0.0375, z));
+        lens.push(new THREE.CircleGeometry(0.024, 14).rotateX(Math.PI / 2).translate(x, y - 0.074, z));
+      }
+    }
+    return { baffle: merge(baffle), lens: merge(lens), track: merge(track) };
+  }, []);
+  useFrame(({ camera }) => { if (g.current) g.current.visible = camera.position.y < WALL_H - 0.05; });
+  if (cut) return null;
+  return (
+    <Rise on={tall}>
+      <group ref={g}>
+        <mesh geometry={geo.baffle} material={archMat('lightTrim')} />
+        <mesh geometry={geo.track} material={archMat('lightTrim')} />
+        <mesh geometry={geo.lens} material={getMat('bulb')} />
+      </group>
+    </Rise>
+  );
 }
 
 export function Glazing() {
-  const mode = useStore((s) => s.walls);
-  const h = mode === 'cutaway' ? CUT_H : WALL_H;
-  const g = useMemo(() => glazingGeometry(h), [h]);
+  const { cut, tall } = useTall();
+  const low = useMemo(() => glazingGeometry(CUT_H), []);
+  const high = useMemo(() => glazingGeometry(WALL_H), []);
+  const g = cut ? low : high;
   return (
-    <group>
+    <Rise on={tall}>
       <mesh geometry={g.glass} material={archMat('facadeGlass')} renderOrder={2} />
       <mesh geometry={g.frame} material={archMat('mullion')} castShadow receiveShadow />
       <mesh geometry={g.slider} material={archMat('facadeGlass')} renderOrder={2} />
       <mesh geometry={g.sliderFrame} material={archMat('bronzeFrame')} castShadow />
-    </group>
+    </Rise>
   );
 }
 
@@ -363,6 +502,8 @@ export function Architecture() {
       <Walls />
       <Glazing />
       <Curtains />
+      <Ceiling />
+      <CeilingLights />
       <Balustrade />
     </group>
   );

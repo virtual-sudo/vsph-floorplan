@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { useFrame, ThreeEvent } from '@react-three/fiber';
+import { useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
 import { Select } from '@react-three/postprocessing';
 import { ITEMS, Item, groupKey } from '../data/furniture';
 import { BUILDERS, Built } from './builders';
@@ -9,6 +9,7 @@ import { getMat } from './matlib';
 import { useStore } from '../store';
 import { wx, wz, S } from '../data/plan';
 import { refreshShadows } from './redraw';
+import { registerBaked } from './soft/baked';
 
 export interface BuiltItem { item: Item; built: Built; geos: Record<string, THREE.BufferGeometry>; bounds: THREE.Box3 }
 const cache = new Map<string, BuiltItem>();
@@ -78,8 +79,14 @@ function Piece({ b, interactive = true }: { b: BuiltItem; interactive?: boolean 
 }
 const groupOf = (id: string) => { const it = ITEMS.find((i) => i.id === id); return it ? groupKey(it) : id; };
 
+// the soft upholstery, meshed ahead of time (npm run bake); loading it is part of the loading screen
+const bakedLoader = (l: THREE.Loader) => { (l as THREE.FileLoader).setResponseType('arraybuffer'); };
+let bakedReady = false;
+
 export function Furniture({ interactive = true }: { interactive?: boolean } = {}) {
   const finish = useStore((s) => s.finish);
+  const baked = useLoader(THREE.FileLoader, 'furniture/soft.bin', bakedLoader) as unknown as ArrayBuffer;
+  if (!bakedReady) { bakedReady = true; try { registerBaked(baked); } catch (e) { /* the pieces are meshed here instead */ } }
   const all = useMemo(() => ITEMS.map(buildItem), []);
   const dressedRef = useRef<THREE.Group>(null!);
   const anim = useRef({ t: finish === 'dressed' ? 1 : 0, target: finish === 'dressed' ? 1 : 0 });
@@ -87,10 +94,11 @@ export function Furniture({ interactive = true }: { interactive?: boolean } = {}
   useFrame((state, dt) => {
     const a = anim.current;
     if (a.t === a.target) return;
-    a.t = a.target > a.t ? Math.min(a.target, a.t + dt * 2.2) : Math.max(a.target, a.t - dt * 2.8);
+    // furniture rises in about 0.7 s and settles in about 0.55 s, on a soft ease-in-out
+    a.t = a.target > a.t ? Math.min(a.target, a.t + dt * 1.45) : Math.max(a.target, a.t - dt * 1.8);
     const g = dressedRef.current;
     if (!g) return;
-    const e = a.t < 0.5 ? 2 * a.t * a.t : 1 - Math.pow(-2 * a.t + 2, 2) / 2;
+    const e = a.t < 0.5 ? 4 * a.t * a.t * a.t : 1 - Math.pow(-2 * a.t + 2, 3) / 2;
     g.visible = a.t > 0.001;
     g.scale.set(1, Math.max(0.001, e), 1);
     // keep drawing (with the shadow following the furniture) until the animation settles

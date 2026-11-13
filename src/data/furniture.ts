@@ -106,13 +106,16 @@ const items: Item[] = [
   { id: 'fx-side', type: 'table', name: 'Side table', room: 'flex', x: 1102, y: 1074, p: { style: 'drum', r: 0.17, h: 0.45, top: 'nero' } },
 
   // ---------------- Show kitchen and dining ----------------
-  { id: 'k-island', type: 'island', name: 'Kitchen island', room: 'kitchen', x: 1911, y: 156, rot: 0, finish: 'both', p: { w: 3.62, d: 1.28, top: 'patagonia', body: 'ebony', sink: [-0.36, -0.3], hob: [0.84, -0.3] }, desc: 'Statement island in quartzite with waterfall ends, an integrated sink and an induction hob.' },
-  { id: 'k-bowl', type: 'decor', name: 'Bowl', room: 'kitchen', x: 1870, y: 170, pick: false, p: { style: 'bowl', a: 'ceramic-stone' } },
-  { id: 'd-shelves', type: 'shelving', name: 'Display wall', room: 'dining', x: 1704, y: 337, rot: 90, finish: 'both', p: { w: 2.5, d: 0.36, h: 2.85, body: 'walnut', shelf: 'bronze', shelves: 5 } },
-  { id: 'd-table', type: 'table', name: 'Oval dining table', room: 'dining', x: 1937, y: 302, rot: 9, p: { style: 'oval', rx: 1.92, rz: 0.8, top: 'travertine', runner: 'linen-white' }, desc: 'Oval table for twelve in honed travertine on two pedestals.' },
-  { id: 'd-candles', type: 'decor', name: 'Candles', room: 'dining', x: 1937, y: 302, rot: 9, pick: false, p: { style: 'candles' } },
-  { id: 'd-pend1', type: 'lamp', name: 'Pendant', room: 'dining', x: 1903, y: 307, set: 'd-pend', p: { style: 'pendant', y: 2.05, r: 0.3, metal: 'brass' } },
-  { id: 'd-pend2', type: 'lamp', name: 'Pendant', room: 'dining', x: 1971, y: 296, set: 'd-pend', p: { style: 'pendant', y: 2.05, r: 0.3, metal: 'brass' } },
+  { id: 'k-island', type: 'island', name: 'Kitchen island', room: 'kitchen', x: 1911, y: 156, rot: 0, finish: 'both', p: { w: 3.62, d: 1.28, top: 'marble-island', body: 'oak-kitchen', doors: true, sink: [1.1, 0.15], sinkSize: [0.75, 0.45], tapSide: 1, tapMat: 'black-steel', hob: [-0.28, 0], hobSize: [0.9, 0.55] }, desc: 'Statement island in dark veined marble with waterfall ends, clad in stone toward the dining room; smoked oak cupboards, a dishwasher, an undermount sink and a wide induction hob on the kitchen side.' },
+  { id: 'k-hood', type: 'hood', name: 'Range hood', room: 'kitchen', x: 1895, y: 156, finish: 'both', pick: false, p: { style: 'canopy', w: 1.8, d: 0.95, y: 1.95, hh: 0.35 } },
+  { id: 'k-bowl', type: 'decor', name: 'Bowl', room: 'kitchen', x: 1828, y: 150, pick: false, p: { style: 'bowl', a: 'ceramic-stone' } },
+  { id: 'k-tall', type: 'tallRun', name: 'Tall joinery', room: 'kitchen', x: 1710.6, y: 123.5, rot: 90, finish: 'both', p: { cols: [{ k: 'door', w: 1.07 }, { k: 'oven', w: 0.62 }, { k: 'fridge', w: 1.05 }], joint: 2.25, ovenY: 1.25, ends: true }, desc: 'Floor-to-ceiling smoked rift oak joinery: an integrated fridge-freezer pair, a built-in oven and pantry cupboards.' },
+  { id: 'k-halldoor', type: 'tallRun', name: 'Service door', room: 'kitchen', x: 1699.6, y: 228.5, rot: 90, finish: 'both', pick: false, p: { cols: [{ k: 'door', w: 0.88 }], joint: 0, d: 0.05 } },
+  { id: 'k-hallceil', type: 'soffit', name: 'Hall ceiling', room: 'dining', x: 1731, y: 635.5, pick: false, p: { w: 1.07, l: 15.17, y: 2.98, slot: -1 } },
+  { id: 'd-bar', type: 'bar', name: 'Bar', room: 'dining', x: 1688.2, y: 332, rot: 90, finish: 'both', p: { w: 2.69, d: 0.42, cooler: 0.05, top: 3.08 }, desc: 'Bar in the hall recess: black speckled granite cupboards round a wine cooler, a veined marble top and book-matched splashback, and lit bronze display boxes.' },
+  { id: 'd-table', type: 'table', name: 'Dining table', room: 'dining', x: 1937, y: 302, rot: 9, p: { style: 'stadium', rx: 1.92, rz: 0.7, top: 'oak-greywash', runner: 'linen-white', settings: true }, desc: 'Racetrack table for twelve in grey-washed oak on a flared oval pedestal, laid with porcelain, glassware and brass cutlery.' },
+  { id: 'd-candles', type: 'decor', name: 'Pampas centrepiece', room: 'dining', x: 1937, y: 302, rot: 9, pick: false, p: { style: 'pampas', lift: 0.755 } },
+  { id: 'd-pend1', type: 'lamp', name: 'Branching chandelier', room: 'dining', x: 1937, y: 302, rot: 20, p: { style: 'branch', y: 2.3, metal: 'bronze' }, desc: 'Dark bronze branching chandelier with frosted glass tube lights.' },
   // dining terrace
   { id: 'dt-table', type: 'table', name: 'Outdoor dining table', room: 'dining-terrace', x: 2247, y: 266, p: { style: 'round', r: 0.68, top: 'travertine', base: 'bronze' } },
   { id: 'dt-ch1', type: 'diningChair', name: 'Outdoor chair', room: 'dining-terrace', x: 2219, y: 231, rot: 39, set: 'dt-ch', p: { fabric: 'weave-sand', frame: 'bronze' } },
@@ -123,25 +126,43 @@ const items: Item[] = [
   { id: 'dt-plant2', type: 'plant', name: 'Agave', room: 'dining-terrace', x: 2241, y: 100, p: { style: 'spiky', h: 0.75, pr: 0.2, ph: 0.35, seed: 52, pot: 'pot-charcoal' } },
 
   // ---------------- Grand living ----------------
-  { id: 'l-rug', type: 'rug', name: 'Wool rug', room: 'living', x: 1960, y: 700, p: { w: 3.95, d: 8.6, mat: 'rug-sand' } },
-  { id: 'l-sect', type: 'sofa', name: 'Sectional sofa', room: 'living', x: 1960, y: 530, p: { pathPx: [[1893, 640], [1886, 467], [2058, 470]], depth: 1.05, fabric: 'boucle-ivory', cushions: 'linen-flax', seed: 5 }, desc: 'Deep L-shaped sectional in ivory boucle with feather back cushions.' },
-  { id: 'l-coffee1', type: 'table', name: 'Marble coffee table', room: 'living', x: 2017, y: 577, rot: 0, p: { style: 'pebble', rx: 0.7, rz: 0.36, h: 0.34, seed: 1, top: 'calacatta' } },
-  { id: 'l-deco1', type: 'decor', name: 'Books', room: 'living', x: 2030, y: 573, rot: 20, pick: false, p: { style: 'books', seed: 3 } },
-  { id: 'l-pouf', type: 'table', name: 'Leather pouf', room: 'living', x: 1952, y: 556, p: { style: 'pouf', r: 0.22, h: 0.4, top: 'leather-black' } },
-  { id: 'l-swivel1', type: 'armchair', name: 'Swivel chair', room: 'living', x: 1986, y: 638, rot: 180, set: 'l-swivel', p: { style: 'barrel', r: 0.42, fabric: 'boucle-ivory' } },
-  { id: 'l-swivel2', type: 'armchair', name: 'Swivel chair', room: 'living', x: 2047, y: 638, rot: 180, set: 'l-swivel', p: { style: 'barrel', r: 0.42, fabric: 'boucle-ivory' } },
+  { id: 'l-rug', type: 'rug', name: 'Croc pile rug', room: 'living', x: 1960, y: 700, p: { w: 3.95, d: 8.6, mat: 'rug-croc' } },
+  // Grand Living, placed and shaped from the 12K panoramas (work/i2t/: img2threejs specs, fits and reviews).
+  // The sectional sits 0.97 m west and 0.38 m north of the dressed plan's position, as fitted to the Grand Living 02
+  // photo; its south end runs on past the bolster's scroll, the back slopes into a backless chaise on the north leg.
+  { id: 'l-sect', type: 'sofa', name: 'Curved sectional', room: 'living', x: 1904, y: 508, rot: 1.5, p: { style: 'soft', pathPx: [[1837, 653], [1837, 618], [1830, 445], [2002, 448]], backStart: 0.6, backEnd: 5.0, pillows: 4, fabric: 'boucle-pebble-ivory', cushions: 'boucle-oat', seed: 5 }, desc: 'Modular curved sectional in ivory pebble boucle: a round bolster back that scrolls at the end and slopes into a chaise.' },
+  { id: 'l-coffee1', type: 'table', name: 'Marble coffee table', room: 'living', x: 1961, y: 555, rot: 0, p: { style: 'pebble', legs: 'cyl2', rx: 0.7, rz: 0.4, h: 0.36, seed: 1, top: 'calacatta' }, desc: 'Pebble-shaped Calacatta slab on two round travertine pedestals.' },
+  { id: 'l-deco1', type: 'decor', name: 'Books', room: 'living', x: 1974, y: 551, rot: 20, pick: false, p: { style: 'books', seed: 3 } },
+  { id: 'l-swivel1', type: 'armchair', name: 'Swivel barrel chair', room: 'living', x: 1986, y: 638, rot: 180, set: 'l-swivel', p: { style: 'club2', round: true, fabric: 'boucle-ivory' } },
+  { id: 'l-swivel2', type: 'armchair', name: 'Swivel barrel chair', room: 'living', x: 2047, y: 638, rot: 180, set: 'l-swivel', p: { style: 'club2', round: true, fabric: 'boucle-ivory' } },
   { id: 'l-side1', type: 'table', name: 'Side table', room: 'living', x: 1935, y: 640, p: { style: 'drum', r: 0.17, h: 0.48, top: 'nero' } },
-  { id: 'l-club1', type: 'armchair', name: 'Club chair', room: 'living', x: 1928, y: 752, rot: 49, set: 'l-club', p: { style: 'club', fabric: 'boucle-oat' } },
-  { id: 'l-club2', type: 'armchair', name: 'Club chair', room: 'living', x: 2041, y: 755, rot: -51, set: 'l-club', p: { style: 'club', fabric: 'boucle-oat' } },
-  { id: 'l-side2', type: 'table', name: 'Brass side table', room: 'living', x: 1986, y: 740, p: { style: 'drum', r: 0.24, h: 0.5, top: 'brass' } },
-  { id: 'l-pouf2', type: 'table', name: 'Pouf', room: 'living', x: 1881, y: 772, p: { style: 'pouf', r: 0.24, h: 0.4, top: 'leather-taupe' } },
-  { id: 'l-coffee2', type: 'table', name: 'Marble coffee table', room: 'living', x: 1984, y: 816, rot: 6, p: { style: 'pebble', rx: 0.66, rz: 0.4, h: 0.34, seed: 3, top: 'calacatta' } },
+  { id: 'l-club1', type: 'armchair', name: 'Club tub chair', room: 'living', x: 1875, y: 755, rot: 20, p: { style: 'club2', fabric: 'boucle-pebble-ivory' }, desc: 'Tall tub chair in pebble boucle: one-piece shell on a recessed plinth.' },
+  { id: 'l-club2', type: 'armchair', name: 'Lounge chair', room: 'living', x: 2041, y: 755, rot: -119, p: { style: 'lounge', mirror: true, fabric: 'boucle-pebble-ivory' }, desc: 'Deep lounge chair with a bolster wrapping the back and one side.' },
+  { id: 'l-side2', type: 'table', name: 'Nesting side tables', room: 'living', x: 1998, y: 728, rot: -30, p: { style: 'nest', top: 'walnut' }, desc: 'Oval walnut tops on antique bronze trumpet stems.' },
+  { id: 'l-coffee2', type: 'table', name: 'Marble coffee table', room: 'living', x: 1984, y: 816, rot: 6, p: { style: 'pebble', legs: 'cyl2', rx: 0.66, rz: 0.4, h: 0.36, seed: 3, top: 'calacatta' }, desc: 'Pebble-shaped Calacatta slab on two round travertine pedestals.' },
   { id: 'l-deco2', type: 'decor', name: 'Vase', room: 'living', x: 1972, y: 812, pick: false, p: { style: 'vase' } },
-  { id: 'l-sofa', type: 'sofa', name: 'Curved sofa', room: 'living', x: 1968, y: 920, p: { arc: { r: 4.2, a0: 69, a1: 111, cz: -4.2 }, depth: 1.0, fabric: 'boucle-ivory', cushions: 'linen-flax', seed: 6 }, desc: 'Gently curved three-metre sofa.' },
+  { id: 'l-sofa', type: 'sofa', name: 'Curved sofa', room: 'living', x: 1968, y: 920, p: { style: 'soft', arc: { r: 4.2, a0: 69, a1: 111, cz: -4.2 }, backStart: 0.35, backEnd: 2.75, pillows: 3, fabric: 'boucle-pebble-ivory', cushions: 'boucle-oat', seed: 6 }, desc: 'Gently curved three-metre sofa in pebble boucle with a round bolster back.' },
   { id: 'l-console', type: 'table', name: 'Sofa console', room: 'living', x: 1956, y: 938, rot: 0, p: { style: 'console', w: 1.95, d: 0.42, h: 0.62, top: 'nero', base: 'walnut' } },
   { id: 'l-console-deco', type: 'decor', name: 'Tray', room: 'living', x: 1930, y: 938, pick: false, p: { style: 'tray' }, desc: '' },
-  { id: 'l-wine1', type: 'shelving', name: 'Wine wall', room: 'living', x: 1711, y: 476, rot: 90, finish: 'both', set: 'l-wine', p: { w: 1.5, d: 0.34, h: 2.85, wine: true, body: 'walnut', shelf: 'bronze', shelves: 6 } },
-  { id: 'l-wine2', type: 'shelving', name: 'Wine wall', room: 'living', x: 1711, y: 846, rot: 90, finish: 'both', set: 'l-wine', p: { w: 2.6, d: 0.34, h: 2.85, wine: true, body: 'walnut', shelf: 'bronze', shelves: 6 } },
+  { id: 'l-wine1', type: 'shelving', name: 'Wine wall', room: 'living', x: 1711, y: 545, rot: 90, finish: 'both', set: 'l-wine', p: { w: 1.5, d: 0.34, h: 2.85, wine: true, body: 'ebony', bottle: 'glass-smoke', shelf: 'bronze', shelves: 6 } },
+  { id: 'l-wine2', type: 'shelving', name: 'Wine wall', room: 'living', x: 1711, y: 800, rot: 90, finish: 'both', set: 'l-wine', p: { w: 2.6, d: 0.34, h: 2.85, wine: true, body: 'ebony', bottle: 'glass-smoke', shelf: 'bronze', shelves: 6 } },
+  // The wine rooms' fronts as the photos show them (front plane x = 1827, measured from views 4 and 12): veneered
+  // piers carrying the two large artworks, smoked glass between them and a bulkhead with a linear air grille over the
+  // glass and the corridor opening. The wine walls stand behind the glass.
+  { id: 'l-pier1', type: 'pier', name: 'Wine room pier', room: 'living', x: 1818.5, y: 471, rot: 90, finish: 'both', pick: false, p: { w: 1.72, d: 0.29, mat: 'veneer-limed' } },
+  { id: 'l-pier2', type: 'pier', name: 'Wine room pier', room: 'living', x: 1818.5, y: 836.5, rot: 90, finish: 'both', pick: false, p: { w: 1.57, d: 0.29, mat: 'veneer-limed' } },
+  { id: 'l-wglass1', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1824, y: 559.5, rot: 90, finish: 'both', pick: false, p: { w: 1.33 } },
+  { id: 'l-wdoor', type: 'glassScreen', name: 'Wine room opening', room: 'living', x: 1824, y: 658.5, rot: 90, finish: 'both', pick: false, p: { w: 2.09, open: true } },
+  { id: 'l-wglass2', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1824, y: 755, rot: 90, finish: 'both', pick: false, p: { w: 1.24 } },
+  { id: 'l-wglass3', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1824, y: 910, rot: 90, finish: 'both', pick: false, p: { w: 0.97 } },
+  { id: 'l-wside1', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1762, y: 598, rot: 0, finish: 'both', pick: false, p: { w: 2.14 } },
+  { id: 'l-wside2', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1762, y: 719, rot: 180, finish: 'both', pick: false, p: { w: 2.14 } },
+  { id: 'l-wside3', type: 'glassScreen', name: 'Wine room glass', room: 'living', x: 1762, y: 938, rot: 0, finish: 'both', pick: false, p: { w: 2.14 } },
+  // artworks, sized and hung as measured in the photos; pictures straightened from the 360 photos
+  { id: 'l-art1', type: 'art', name: 'Stacked stones print', room: 'living', x: 2082, y: 469.5, rot: -90, p: { w: 1.17, h: 1.62, cy: 1.74, art: 'art-stones-a', fw: 0.018 }, desc: 'Framed print of stacked stone forms in black steel.' },
+  { id: 'l-art2', type: 'art', name: 'Stacked stones print', room: 'living', x: 2082, y: 879, rot: -90, p: { w: 1.17, h: 1.62, cy: 1.74, art: 'art-stones-b', fw: 0.018 }, desc: 'Companion print of stacked stone forms.' },
+  { id: 'l-art3', type: 'art', name: 'Carved wave relief', room: 'living', x: 1827, y: 482, rot: 90, p: { w: 1.09, h: 1.82, cy: 1.75, art: 'art-waves', fw: 0.012 }, desc: 'Large carved plaster relief of sweeping lines on the north wine-room pier.' },
+  { id: 'l-art4', type: 'art', name: 'Washed abstract', room: 'living', x: 1827, y: 836, rot: 90, p: { w: 0.93, h: 1.69, cy: 1.725, art: 'art-rain', fw: 0.012 }, desc: 'Washed mineral abstract on linen on the south wine-room pier.' },
   { id: 'l-floorlamp', type: 'lamp', name: 'Floor lamp', room: 'living', x: 1900, y: 488, p: { style: 'floor', metal: 'brass' } },
   // living terrace
   { id: 'lt-plant1', type: 'plant', name: 'Agave', room: 'living-terrace', x: 2202, y: 466, p: { style: 'spiky', h: 0.75, pr: 0.2, ph: 0.38, seed: 61, pot: 'pot-charcoal' } },
@@ -190,7 +211,7 @@ const items: Item[] = [
 
 // twelve dining chairs around the oval table, facing it
 (() => {
-  const cx = 1937, cy = 302, rot = 9 * Math.PI / 180, rx = 1.92, rz = 0.8;
+  const cx = 1937, cy = 302, rot = 9 * Math.PI / 180, rx = 1.92, rz = 0.7;
   const spots: [number, number][] = [];
   for (const x of [-1.3, -0.65, 0, 0.65, 1.3]) { spots.push([x, -(rz + 0.36)]); spots.push([x, rz + 0.36]); }
   spots.push([-(rx + 0.34), 0]); spots.push([rx + 0.34, 0]);
@@ -200,7 +221,7 @@ const items: Item[] = [
     const wzo = -lx * Math.sin(rot) + lz * Math.cos(rot);
     const x = cx + wxo / S, y = cy + wzo / S;
     const face = Math.atan2(-wxo, -wzo) * 180 / Math.PI;
-    items.push({ id: 'd-chair' + (i + 1), type: 'diningChair', name: 'Dining chair', room: 'dining', x, y, rot: face, set: 'd-chairs', p: { fabric: 'velvet-olive', frame: 'brass' }, desc: 'Velvet dining chair on a brushed brass frame. Changes apply to all twelve.' });
+    items.push({ id: 'd-chair' + (i + 1), type: 'diningChair', name: 'Dining chair', room: 'dining', x, y, rot: face, set: 'd-chairs', p: { style: 'horseshoe', fabric: 'wool-chartreuse', frame: 'oak-greywash' }, desc: 'Horseshoe dining chair in chartreuse wool on solid grey-washed oak legs. Changes apply to all twelve.' });
   });
 })();
 

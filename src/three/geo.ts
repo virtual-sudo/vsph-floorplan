@@ -175,6 +175,12 @@ export function sphere(r: number, ws = 24, hs = 16): THREE.BufferGeometry {
 }
 
 export function merge(gs: THREE.BufferGeometry[]): THREE.BufferGeometry {
+  // a single (often large, indexed) mesh is used as it is, rather than unrolled into separate triangles
+  if (gs.length === 1) {
+    const g = gs[0];
+    for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal' && k !== 'uv') g.deleteAttribute(k);
+    return g;
+  }
   const clean = gs.map((g) => {
     const ng = g.index ? g.toNonIndexed() : g;
     for (const k of Object.keys(ng.attributes)) if (k !== 'position' && k !== 'normal' && k !== 'uv') ng.deleteAttribute(k);
