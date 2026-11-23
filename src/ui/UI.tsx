@@ -8,10 +8,9 @@ import { getBuilt, matFor } from '../three/Furniture';
 import { PRESETS, presetOverrides } from './presets';
 import { Icon } from './icons';
 import { Seg } from './Seg';
-import { RoomFacts, RoomPieces } from './RoomDetails';
+import { RoomFacts } from './RoomDetails';
 import { PanoView } from './Pano';
 import { Switcher, crossfade } from './motion';
-import { captureApi } from '../three/Capture';
 
 // ---------------- left rail ----------------
 function Rail() {
@@ -55,9 +54,6 @@ function Rail() {
   return (
     <nav className="rail glass" ref={nav}>
       <span className="rail-pill" ref={pill} aria-hidden="true" />
-      <div className="brand" title="Ayala Land Premier">
-        <svg viewBox="0 0 32 32" width="30" height="30"><rect width="32" height="32" rx="9" fill="#1f2a24" /><path d="M8 22V12l8-5 8 5v10" fill="none" stroke="#d8c7a3" strokeWidth="2" /><path d="M13 22v-5h6v5" fill="none" stroke="#d8c7a3" strokeWidth="2" /></svg>
-      </div>
       <button className="rail-btn" onClick={overview} aria-label="Overview">
         <Icon name="home" size={20} /><span>Overview</span>
       </button>
@@ -72,23 +68,6 @@ function Rail() {
   );
 }
 
-// inside an embedded preview the browser blocks downloads, so the picture button is only offered on the full site
-export const canDownload = (() => { try { return window.self === window.top; } catch (e) { return false; } })();
-
-export async function saveShot() {
-  const st = useStore.getState();
-  if (!captureApi.run) return;
-  st.set({ hoverItem: null, hoverRoom: null, toast: 'Rendering a high-resolution picture…' });
-  const r = await captureApi.run(3840);
-  if (!r) { st.set({ toast: 'The picture could not be saved. Try again.' }); return; }
-  const a = document.createElement('a');
-  a.download = 'park-villas-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.png';
-  a.href = URL.createObjectURL(r.blob);
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  st.set({ toast: `Saved a ${r.width} × ${r.height} PNG` });
-}
-
 // ---------------- top bar ----------------
 function TopBar() {
   const finish = useStore((s) => s.finish);
@@ -96,6 +75,11 @@ function TopBar() {
   const walls = useStore((s) => s.walls);
   const set = useStore((s) => s.set);
   const requestView = useStore((s) => s.requestView);
+  const hideNavigation = () => {
+    const s = useStore.getState();
+    s.selectRoom(null, false);
+    s.set({ navHidden: true, panel: null, help: false, hoverRoom: null, hoverItem: null, toast: null });
+  };
   return (
     <header className="topbar">
       <div className="title">
@@ -103,16 +87,27 @@ function TopBar() {
         <p>3D Residence Plan</p>
       </div>
       <div className="controls">
-        <Seg label="Finish" value={finish} onChange={(v) => set({ finish: v })} options={[{ v: 'bare', label: 'Bare' }, { v: 'dressed', label: 'Dressed' }]} />
+        <Seg label="Finish" value={finish} onChange={(v) => crossfade(() => set({ finish: v }), 700)} options={[{ v: 'bare', label: 'Bare' }, { v: 'dressed', label: 'Dressed' }]} />
         <Seg label="Light" value={time} onChange={(v) => crossfade(() => set({ time: v }), 800)} options={[{ v: 'day', label: 'Day', icon: 'sun' }, { v: 'night', label: 'Night', icon: 'moon' }]} />
         <Seg label="Walls" value={walls} onChange={(v) => crossfade(() => set({ walls: v }))} options={[{ v: 'full', label: 'Full', icon: 'walls' }, { v: 'cutaway', label: 'Cut', icon: 'cut' }]} />
         <div className="icon-row">
-          {canDownload && <button className="icon-btn glass" data-tip="Save a picture" aria-label="Save a picture of this view" onClick={saveShot}><Icon name="camera" /></button>}
           <button className="icon-btn glass not-phone" data-tip="Plan from above" aria-label="View the plan from above" onClick={() => requestView('top')}><Icon name="top" /></button>
           <button className="icon-btn glass not-phone" data-tip="Reset view" aria-label="Reset the view" onClick={() => { const s = useStore.getState(); s.selectItem(null); s.selectRoom(null); }}><Icon name="reset" /></button>
+          <button className="icon-btn glass" data-tip="Hide navigation" aria-label="Hide navigation" onClick={hideNavigation}><Icon name="eyeOff" /></button>
         </div>
       </div>
     </header>
+  );
+}
+
+function NavigationRestore() {
+  const navHidden = useStore((s) => s.navHidden);
+  const set = useStore((s) => s.set);
+  if (!navHidden) return null;
+  return (
+    <button className="icon-btn glass nav-restore" data-tip="Show navigation" aria-label="Show navigation" onClick={() => set({ navHidden: false })}>
+      <Icon name="eye" />
+    </button>
   );
 }
 
@@ -293,7 +288,6 @@ function Summary() {
 function RoomCard({ r }: { r: Room }) {
   const set = useStore((s) => s.set);
   const selectRoom = useStore((s) => s.selectRoom);
-  const selectItem = useStore((s) => s.selectItem);
   return (
     <section className="card glass room-card">
       <div className={'hero' + (r.cams.length ? ' can-enter' : '')} onClick={r.cams.length ? () => set({ pano: { room: r.id, cam: r.cams[0].n } }) : undefined}>
@@ -307,7 +301,6 @@ function RoomCard({ r }: { r: Room }) {
         <h2>{r.name}</h2>
         <p className="desc">{r.info}</p>
         <RoomFacts r={r} />
-        <RoomPieces r={r} onPick={(id) => selectItem(id)} />
       </div>
     </section>
   );
@@ -390,17 +383,58 @@ function RightColumn() {
 
 function HelpPop() {
   const set = useStore((s) => s.set);
+  const dialog = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') set({ help: false }); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [set]);
+  const close = () => set({ help: false });
   return (
-    <div className="help-pop glass" role="dialog" aria-label="How to use">
-      <div className="card-head"><h2>Getting around</h2><button className="icon-btn" onClick={() => set({ help: false })} aria-label="Close"><Icon name="x" size={16} /></button></div>
-      <ul>
-        <li><b>Turn</b> drag with the left mouse button or one finger</li>
-        <li><b>Move</b> drag with the right mouse button or two fingers</li>
-        <li><b>Zoom</b> scroll, or pinch</li>
-        <li><b>Rooms</b> pick a room in the list or its label to step into its 360° view</li>
-        <li><b>Materials</b> click a sofa, table, bed or chair to change its finish</li>
-        <li><b>Bare or Dressed</b> switches between the empty and the furnished home</li>
-      </ul>
+    <div className="help-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
+      <section className="help-pop glass" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="help-title"
+        onKeyDown={(e) => {
+          if (e.key !== 'Tab') return;
+          const targets = dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), [tabindex]:not([tabindex="-1"])');
+          if (!targets?.length) return;
+          const first = targets[0], last = targets[targets.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }}>
+        <div className="help-head">
+          <div>
+            <div className="help-eyebrow"><Icon name="sparkle" size={14} /> QUICK GUIDE</div>
+            <h2 id="help-title">Make yourself at home</h2>
+            <p>Explore the residence at your own pace. Here are a few ways to get started.</p>
+          </div>
+          <button className="icon-btn help-close" onClick={close} aria-label="Close help" autoFocus><Icon name="x" size={18} /></button>
+        </div>
+        <div className="help-grid">
+          <article className="help-card">
+            <span className="help-icon"><Icon name="eye" size={19} /></span>
+            <h3>Move through the model</h3>
+            <ul>
+              <li><b>Orbit</b><span>Drag with your mouse or a finger</span></li>
+              <li><b>Pan</b><span>Right-drag or use two fingers</span></li>
+              <li><b>Zoom</b><span>Scroll or pinch</span></li>
+            </ul>
+          </article>
+          <article className="help-card">
+            <span className="help-icon"><Icon name="rooms" size={19} /></span>
+            <h3>Explore rooms</h3>
+            <p>Choose <b>Rooms</b> to browse the floor plan, or select a room label in the model. Open a room’s 360° view when available.</p>
+          </article>
+          <article className="help-card">
+            <span className="help-icon"><Icon name="palette" size={19} /></span>
+            <h3>Make it yours</h3>
+            <p>Select furniture to change its materials. Use <b>Bare / Dressed</b> to compare the empty and furnished home, or open <b>Styling</b> for palettes and finishes.</p>
+          </article>
+        </div>
+        <div className="help-foot">
+          <span><Icon name="camera" size={16} /> Use <b>Views</b> to jump to a curated camera angle.</span>
+          <button className="btn" onClick={close}>Start exploring<Icon name="chevR" size={16} /></button>
+        </div>
+      </section>
     </div>
   );
 }
@@ -492,6 +526,7 @@ export function UI() {
       <Toast />
       <Keys />
       <PanoView />
+      <NavigationRestore />
       <Loader />
     </>
   );

@@ -13,9 +13,10 @@ function openFromHash() {
 export function App() {
   const time = useStore((s) => s.time);
   const inside = useStore((s) => s.inside);
+  const navHidden = useStore((s) => s.navHidden);
   useEffect(() => { openFromHash(); }, []);
   return (
-    <div className={'app ' + time + (inside ? ' inside' : '')}>
+    <div className={'app ' + time + (inside ? ' inside' : '') + (navHidden ? ' nav-hidden' : '')}>
       <div className="stage"><Stage><VillaContent /></Stage></div>
       <UI />
     </div>

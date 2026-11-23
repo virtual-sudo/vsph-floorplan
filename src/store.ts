@@ -11,6 +11,7 @@ interface State {
   time: TimeOfDay;
   walls: WallMode;
   panel: Panel;
+  navHidden: boolean;
   roomId: string | null;
   hoverRoom: string | null;
   itemId: string | null;
@@ -47,6 +48,7 @@ export const useStore = create<State>((set, get) => ({
   time: 'day',
   walls: 'cutaway',
   panel: 'rooms',
+  navHidden: false,
   roomId: null,
   hoverRoom: null,
   itemId: null,

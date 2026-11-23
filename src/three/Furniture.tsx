@@ -1,6 +1,6 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import * as THREE from 'three';
-import { useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
+import { useLoader, ThreeEvent } from '@react-three/fiber';
 import { Select } from '@react-three/postprocessing';
 import { ITEMS, Item, groupKey } from '../data/furniture';
 import { BUILDERS, Built } from './builders';
@@ -88,29 +88,13 @@ export function Furniture({ interactive = true }: { interactive?: boolean } = {}
   const baked = useLoader(THREE.FileLoader, 'furniture/soft.bin', bakedLoader) as unknown as ArrayBuffer;
   if (!bakedReady) { bakedReady = true; try { registerBaked(baked); } catch (e) { /* the pieces are meshed here instead */ } }
   const all = useMemo(() => ITEMS.map(buildItem), []);
-  const dressedRef = useRef<THREE.Group>(null!);
-  const anim = useRef({ t: finish === 'dressed' ? 1 : 0, target: finish === 'dressed' ? 1 : 0 });
-  useEffect(() => { anim.current.target = finish === 'dressed' ? 1 : 0; refreshShadows(); }, [finish]);
-  useFrame((state, dt) => {
-    const a = anim.current;
-    if (a.t === a.target) return;
-    // furniture rises in about 0.7 s and settles in about 0.55 s, on a soft ease-in-out
-    a.t = a.target > a.t ? Math.min(a.target, a.t + dt * 1.45) : Math.max(a.target, a.t - dt * 1.8);
-    const g = dressedRef.current;
-    if (!g) return;
-    const e = a.t < 0.5 ? 4 * a.t * a.t * a.t : 1 - Math.pow(-2 * a.t + 2, 3) / 2;
-    g.visible = a.t > 0.001;
-    g.scale.set(1, Math.max(0.001, e), 1);
-    // keep drawing (with the shadow following the furniture) until the animation settles
-    refreshShadows(2);
-    state.invalidate();
-  });
+  useEffect(() => { refreshShadows(); }, [finish]);
   const fixed = all.filter((b) => b.item.finish === 'both');
   const loose = all.filter((b) => b.item.finish !== 'both');
   return (
     <group>
       <group>{fixed.map((b) => <Piece key={b.item.id} b={b} interactive={interactive} />)}</group>
-      <group ref={dressedRef} visible={finish === 'dressed'}>{loose.map((b) => <Piece key={b.item.id} b={b} interactive={interactive} />)}</group>
+      <group visible={finish === 'dressed'}>{loose.map((b) => <Piece key={b.item.id} b={b} interactive={interactive} />)}</group>
     </group>
   );
 }

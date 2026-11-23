@@ -6,7 +6,7 @@ import { useStore } from '../store';
 import { roomById, ZONES } from '../data/plan';
 import { Icon } from './icons';
 import { Seg } from './Seg';
-import { RoomFacts, RoomPieces } from './RoomDetails';
+import { RoomFacts } from './RoomDetails';
 import { Switcher, reducedMotion } from './motion';
 import { TOUR_URL } from '../config';
 import { panoLink, yawOf } from '../three/panoLink';
@@ -254,8 +254,6 @@ function PanoScreen({ roomId, camN }: { roomId: string; camN: number }) {
   const url = `pano/c${cam.n}-${f === 'bare' && hasBare ? 'b' : 'd'}.jpg`;
   const tour = TOUR_URL ? `${TOUR_URL}#media-name=${encodeURIComponent(cam.name + (f === 'bare' ? ' unfurnished' : ' furnished'))}` : '';
   const back = () => set({ pano: null });
-  // the camera rises back out of the room, then frames the piece (see Dive)
-  const pick = (id: string) => useStore.getState().selectItem(id);
   return (
     <div className={'pano-full' + (reveal ? ' revealed' : '')} role="dialog" aria-modal="true" aria-label={r.name + ' 360° view'}>
       <div className="pano-stage" ref={setStage} style={r.thumb ? ({ '--thumb': `url(${r.thumb})` } as React.CSSProperties) : undefined}>
@@ -295,7 +293,6 @@ function PanoScreen({ roomId, camN }: { roomId: string; camN: number }) {
             </div>
           )}
           <RoomFacts r={r} />
-          <RoomPieces r={r} onPick={pick} hover={false} />
           {tour && <a className="btn tour-btn" href={tour} target="_blank" rel="noreferrer"><Icon name="pano" size={16} />Open in the tour</a>}
         </div>
       </aside>
