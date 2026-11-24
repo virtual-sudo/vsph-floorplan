@@ -177,6 +177,13 @@ function diningChair(p: P): Built {
     add(b, 'frame', tube([[x * 1.08, 0, z * 1.1], [x, sh - 0.08, z]], 0.012, 4));
   }
   add(b, 'frame', tr(rbox(0.42, 0.02, 0.4, 0.008), 0, sh - 0.09, 0));
+  // crisp seat piping and a slim upholstered back rim give the chair a tailored, furniture-quality silhouette
+  add(b, 'upholstery', tr(rbox(0.47, 0.012, 0.012, 0.004), 0, sh + 0.012, 0.205));
+  add(b, 'upholstery', tr(rbox(0.012, 0.012, 0.43, 0.004), 0.205, sh + 0.012, 0));
+  add(b, 'upholstery', tr(rbox(0.012, 0.012, 0.43, 0.004), -0.205, sh + 0.012, 0));
+  for (const sx of [-1, 1]) {
+    add(b, 'frame', tr(rbox(0.018, 0.34, 0.018, 0.004), sx * 0.19, sh * 0.62, -0.17));
+  }
   return b;
 }
 
@@ -322,6 +329,9 @@ function bed(p: P): Built {
   add(b, 'frame', tr(rbox(w, 0.28, l, 0.05), 0, 0.08 + 0.14, 0));
   b.fixed = { plinth: 'black-steel' };
   add(b, 'plinth', tr(rbox(w - 0.14, 0.08, l - 0.14, 0.01), 0, 0.04, 0));
+  // upholstered side rails and a separate mattress plinth make beds read as furniture rather than stacked blocks
+  for (const sx of [-1, 1]) add(b, 'frame', tr(rbox(0.12, 0.18, l - 0.12, 0.035), sx * (w / 2 - 0.06), 0.31, 0));
+  add(b, 'frame', tr(rbox(w - 0.12, 0.18, 0.12, 0.035), 0, 0.31, l / 2 - 0.06));
   add(b, 'bedding', tr(rbox(w - 0.08, 0.22, l - 0.08, 0.07), 0, 0.36 + 0.11, 0));
   // duvet over the lower two thirds, folded back at the top
   const dl = l * 0.72;
@@ -329,6 +339,10 @@ function bed(p: P): Built {
   tr(duvet, 0, 0.58 + 0.035, l / 2 - dl / 2 + 0.03);
   add(b, 'bedding', duvet);
   add(b, 'bedding', tr(cushion(w + 0.04, 0.07, 0.24, 0.035, 0.02), 0, 0.6 + 0.04, l / 2 - dl - 0.06));
+  // soft duvet fold and piped mattress edge
+  add(b, 'bedding', tr(rbox(w + 0.08, 0.025, 0.055, 0.012), 0, 0.68, l / 2 - dl - 0.03));
+  add(b, 'bedding', tr(rbox(w + 0.1, 0.018, 0.018, 0.008), 0, 0.485, l / 2 - 0.02));
+  for (const sx of [-1, 1]) add(b, 'bedding', tr(rbox(0.018, 0.018, l - 0.08, 0.008), sx * (w / 2 + 0.04), 0.485, 0));
   for (const sx of [-1, 1]) add(b, 'bedding', tr(rbox(0.03, 0.3, dl, 0.015), sx * (w / 2 + 0.03), 0.48, l / 2 - dl / 2 + 0.03));
   // throw across the foot, falling over the sides
   add(b, 'throw', tr(rbox(w + 0.14, 0.025, 0.55, 0.01), 0, 0.665, l / 2 - 0.42));
@@ -376,6 +390,11 @@ function nightstand(p: P): Built {
   else if (st === 'oval') add(b, 'top', extrudeUp(ellipse(p.rx || 0.3, p.rz || 0.22, 48), 0, h, 0.012, undefined, 48));
   else if (st === 'float') { add(b, 'top', tr(rbox(p.w || 0.5, 0.16, p.d || 0.4, 0.01), 0, h - 0.08, 0)); }
   else add(b, 'top', tr(rbox(p.w || 0.5, h, p.d || 0.42, 0.012), 0, h / 2, 0));
+  // cabinet body, shadow-gap base and a darker recessed lower shelf
+  if (st !== 'round' && st !== 'oval') {
+    add(b, 'top', tr(rbox((p.w || 0.5) - 0.035, 0.012, (p.d || 0.42) - 0.035, 0.004), 0, 0.025, 0));
+    add(b, 'top', tr(rbox((p.w || 0.5) - 0.045, 0.012, (p.d || 0.42) - 0.045, 0.004), 0, h * 0.58, 0));
+  }
   if (p.lamp !== false) addLamp(b, p.lx || 0.05, h, p.lz || -0.04, p.lampStyle || 'drum');
   return b;
 }
@@ -921,7 +940,12 @@ function decor(p: P): Built {
       add(b, 'plume', sphere(1, 10, 8).scale(0.045 + r() * 0.02, 0.12 + r() * 0.05, 0.045).applyQuaternion(q).translate(dx * (L + 0.06), 0.05 + dy * (L + 0.06), dz * (L + 0.06)));
     }
   } else if (st === 'candles') {
-    for (let i = 0; i < 3; i++) add(b, 'd', tr(lathe([[0, 0], [0.03, 0], [0.012, 0.02], [0.008, 0.18 + i * 0.05], [0.02, 0.2 + i * 0.05], [0, 0.2 + i * 0.05]], 16), (i - 1) * 0.12, 0, 0));
+    for (let i = 0; i < 3; i++) {
+      const hh = 0.18 + i * 0.05;
+      add(b, 'd', tr(lathe([[0, 0], [0.03, 0], [0.012, 0.02], [0.008, hh], [0.02, hh + 0.02], [0, hh + 0.02]], 16), (i - 1) * 0.12, 0, 0));
+      b.fixed = { ...b.fixed, flame: 'flame-warm' };
+      add(b, 'flame', tr(sphere(0.012, 12, 8).scale(0.55, 1.5, 0.55), (i - 1) * 0.12, hh + 0.04, 0));
+    }
   }
   // p.lift raises the piece onto a surface (decor is placed from the floor)
   if (p.lift) for (const gs of Object.values(b.parts)) for (const g of gs) g.translate(0, p.lift, 0);

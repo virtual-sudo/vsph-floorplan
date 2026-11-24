@@ -86,22 +86,22 @@ export const MATERIALS: MatDef[] = [
   { id: 'floor-dark', name: 'Dark stone', kind: 'floor', color: '#3a3836', roughness: 0.55 },
 
   // upholstery
-  fabric('boucle-ivory', 'Ivory boucle', '#e9e2d6', 'fab_boucle_n', 0.7, 0.95),
+  fabric('boucle-ivory', 'Ivory boucle', '#c1b4ab', 'fab_boucle_n', 0.7, 0.95),
   // The coarse pebble loop of the Grand Living upholstery (11-15 mm loops with dark gaps, measured on the 12K
   // panoramas; maps from tools/fabric-boucle.swift, mapped triplanar in matlib). In review: work/i2t/club.
   // The Grand Living rug, cut from the Grand Living 03 panorama (straight-down view), de-lit and made seamless
   // (tools/rug-from-pano.swift): silver-beige croc / cobblestone pile. One tile is about 1.1 m.
   { id: 'rug-croc', name: 'Silver croc pile rug', kind: 'rug', color: '#ffffff', map: T('rug_croc'), normal: T('rug_croc_n'), rep: 0.9, normalScale: 0.7, roughness: 1, sheen: 0.35, sheenColor: '#d8d0c4' },
-  { ...fabric('boucle-pebble-ivory', 'Ivory pebble boucle', '#f3ede3', 'fab_boucle_n', 0.3, 0.95), normal: T('fab_pebble_n'), map: T('fab_pebble_c'), rep: 4, normalScale: 0.6 },
-  fabric('boucle-oat', 'Oat boucle', '#d6c8b2', 'fab_boucle_n', 0.7, 0.95),
-  fabric('boucle-stone', 'Stone boucle', '#b9b1a5', 'fab_boucle_n', 0.7, 0.95),
+  { ...fabric('boucle-pebble-ivory', 'Ivory pebble boucle', '#b1a297', 'fab_boucle_n', 0.3, 0.95), normal: T('fab_pebble_n'), map: T('fab_pebble_c'), rep: 4, normalScale: 0.6 },
+  fabric('boucle-oat', 'Oat boucle', '#9d8d82', 'fab_boucle_n', 0.7, 0.95),
+  fabric('boucle-stone', 'Stone boucle', '#807267', 'fab_boucle_n', 0.7, 0.95),
   fabric('linen-white', 'White linen', '#efece6'),
   fabric('linen-flax', 'Flax linen', '#cbbba0'),
-  fabric('linen-sky', 'Mist blue linen', '#aab7c4'),
-  fabric('wool-charcoal', 'Charcoal wool', '#4a4846', 'fab_linen_n', 0.4),
-  fabric('wool-taupe', 'Taupe wool', '#8f8274', 'fab_linen_n', 0.4),
-  fabric('wool-mauve', 'Mauve wool', '#9a7f7c', 'fab_linen_n', 0.5),
-  fabric('wool-slate', 'Slate wool', '#6f7682', 'fab_linen_n', 0.45),
+  fabric('linen-sky', 'Mist blue linen', '#999ea8', 'fab_linen_n', 0.45),
+  fabric('wool-charcoal', 'Charcoal wool', '#48413d', 'fab_linen_n', 0.4),
+  fabric('wool-taupe', 'Taupe wool', '#807267', 'fab_linen_n', 0.4),
+  fabric('wool-mauve', 'Mauve wool', '#84786e', 'fab_linen_n', 0.5),
+  fabric('wool-slate', 'Slate wool', '#7a7778', 'fab_linen_n', 0.45),
   velvet('velvet-olive', 'Olive velvet', '#6b6a26', '#b8b35a'),
   velvet('velvet-moss', 'Moss velvet', '#3f4a2c', '#7f8f5a'),
   velvet('velvet-rust', 'Rust velvet', '#7a3a22', '#c87650'),
@@ -114,12 +114,12 @@ export const MATERIALS: MatDef[] = [
   leather('leather-taupe', 'Taupe leather', '#7d6d60'),
 
   // bedding
-  { id: 'bed-white', name: 'Hotel white', kind: 'linen', color: '#f2f0ec', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#ffffff', sheenRoughness: 0.6 },
-  { id: 'bed-dove', name: 'Dove grey', kind: 'linen', color: '#c9c8c6', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#e8e8e8', sheenRoughness: 0.6 },
-  { id: 'bed-sand', name: 'Sand', kind: 'linen', color: '#d8ccb8', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#efe4d2', sheenRoughness: 0.6 },
-  { id: 'bed-chambray', name: 'Chambray', kind: 'linen', color: '#a3afbf', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#d0d8e4', sheenRoughness: 0.6 },
-  { id: 'bed-mink', name: 'Mink', kind: 'linen', color: '#8e7e74', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#b9a99c', sheenRoughness: 0.6 },
-  { id: 'bed-espresso', name: 'Espresso', kind: 'linen', color: '#3b302b', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#6b5a50', sheenRoughness: 0.6 },
+  { id: 'bed-white', name: 'Hotel white', kind: 'linen', color: '#d8d2cf', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#e1d8ce', sheenRoughness: 0.6 },
+  { id: 'bed-dove', name: 'Dove grey', kind: 'linen', color: '#9d9b9f', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#bfbbbb', sheenRoughness: 0.6 },
+  { id: 'bed-sand', name: 'Sand', kind: 'linen', color: '#baa899', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#c3b1a2', sheenRoughness: 0.6 },
+  { id: 'bed-chambray', name: 'Chambray', kind: 'linen', color: '#999ea8', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#aab5c0', sheenRoughness: 0.6 },
+  { id: 'bed-mink', name: 'Mink', kind: 'linen', color: '#8a7e78', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#998d87', sheenRoughness: 0.6 },
+  { id: 'bed-espresso', name: 'Espresso', kind: 'linen', color: '#4c3f35', normal: T('fab_linen_n'), rep: 6, normalScale: 0.3, roughness: 0.92, sheen: 0.5, sheenColor: '#67564a', sheenRoughness: 0.6 },
 
   // woods
   wood('oak', 'Natural oak', 'oak'),
@@ -164,10 +164,10 @@ export const MATERIALS: MatDef[] = [
   { id: 'ceramic-black', name: 'Matte black', kind: 'ceramic', color: '#2a2a2b', roughness: 0.55 },
 
   // rugs
-  rug('rug-ivory', 'Ivory wool', '#e3ddd1'),
-  rug('rug-sand', 'Sand wool', '#cdbfa6'),
-  rug('rug-silver', 'Silver shag', '#b9bcc0'),
-  rug('rug-mist', 'Mist blue', '#9eaab6'),
+  rug('rug-ivory', 'Ivory wool', '#b1a297'),
+  rug('rug-sand', 'Sand wool', '#baa899'),
+  rug('rug-silver', 'Silver shag', '#b4aba6'),
+  rug('rug-mist', 'Mist blue', '#999ea8'),
   rug('rug-navy', 'Navy', '#2b3550'),
   rug('rug-teal', 'Deep teal', '#2f5a5c'),
   rug('rug-charcoal', 'Charcoal', '#4a4a4c'),
@@ -180,12 +180,12 @@ export const MATERIALS: MatDef[] = [
   outdoor('weave-natural', 'Natural rope', '#a88b62'),
 
   // wall paints
-  { id: 'paint-warm-white', name: 'Warm white', kind: 'paint', color: '#e8e2d8', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
-  { id: 'paint-greige', name: 'Greige', kind: 'paint', color: '#cfc5b7', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
-  { id: 'paint-sand', name: 'Sandstone', kind: 'paint', color: '#d6c3a5', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
-  { id: 'paint-mist', name: 'Pale mist', kind: 'paint', color: '#d5d8d6', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
-  { id: 'paint-sage', name: 'Soft sage', kind: 'paint', color: '#bcc2ad', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
-  { id: 'paint-clay', name: 'Limewash clay', kind: 'paint', color: '#c9a991', normal: T('plaster_n'), rep: 1.2, normalScale: 0.25, roughness: 0.95 },
+  { id: 'paint-warm-white', name: 'Warm white', kind: 'paint', color: '#c1b4ab', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
+  { id: 'paint-greige', name: 'Greige', kind: 'paint', color: '#9d9b9f', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
+  { id: 'paint-sand', name: 'Sandstone', kind: 'paint', color: '#baa899', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
+  { id: 'paint-mist', name: 'Pale mist', kind: 'paint', color: '#a6a4a1', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
+  { id: 'paint-sage', name: 'Soft sage', kind: 'paint', color: '#7a7778', normal: T('plaster_n'), rep: 1.2, normalScale: 0.12, roughness: 0.92 },
+  { id: 'paint-clay', name: 'Limewash clay', kind: 'paint', color: '#a89084', normal: T('plaster_n'), rep: 1.2, normalScale: 0.25, roughness: 0.95 },
 
   // plants and pots
   { id: 'foliage', name: 'Foliage', kind: 'foliage', color: '#4f6b3a', roughness: 0.65, sheen: 0.3, sheenColor: '#a8c27a' },
@@ -203,6 +203,7 @@ export const MATERIALS: MatDef[] = [
   // light emitters (lamp shades, bulbs)
   { id: 'shade-linen', name: 'Linen shade', kind: 'emissive', color: '#efe6d6', roughness: 0.9, emissive: '#ffcf8a', emissiveIntensity: 0 },
   { id: 'bulb', name: 'Bulb', kind: 'emissive', color: '#fff4e0', roughness: 0.3, emissive: '#ffd59a', emissiveIntensity: 0 },
+  { id: 'flame-warm', name: 'Warm flame', kind: 'emissive', color: '#fff1b8', roughness: 0.2, emissive: '#ffb94f', emissiveIntensity: 2.2 },
   // always-on warm LED strip (the wine wall shelves are lit by day in the photos)
   { id: 'led-warm', name: 'LED strip', kind: 'emissive', color: '#fff1d8', roughness: 0.4, emissive: '#ffc77a', emissiveIntensity: 2.4 },
   // the Grand Living wine-room piers: limed rift-cut veneer, cut from the 360 photo (tools/rug-from-pano.swift)

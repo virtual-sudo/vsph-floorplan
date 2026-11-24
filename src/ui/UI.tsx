@@ -82,10 +82,6 @@ function TopBar() {
   };
   return (
     <header className="topbar">
-      <div className="title">
-        <h1>Park Villas</h1>
-        <p>3D Residence Plan</p>
-      </div>
       <div className="controls">
         <Seg label="Finish" value={finish} onChange={(v) => crossfade(() => set({ finish: v }), 700)} options={[{ v: 'bare', label: 'Bare' }, { v: 'dressed', label: 'Dressed' }]} />
         <Seg label="Light" value={time} onChange={(v) => crossfade(() => set({ time: v }), 800)} options={[{ v: 'day', label: 'Day', icon: 'sun' }, { v: 'night', label: 'Night', icon: 'moon' }]} />
@@ -284,7 +280,7 @@ function Summary() {
   return (
     <section className="card glass summary">
       <button className="card-head as-btn" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <div><h2>The Residence</h2><p className="muted">{RESIDENCE.developer}</p></div>
+        <div><h2>Park Villas</h2><p className="muted">{RESIDENCE.developer}</p></div>
         <span className={'chev' + (open ? ' up' : '')}><Icon name="chevD" size={16} /></span>
       </button>
       <div className={'fold' + (open ? ' open' : '')}>

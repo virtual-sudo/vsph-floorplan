@@ -5,7 +5,7 @@ import { getBuilt } from '../three/Furniture';
 export interface Preset { id: string; name: string; note: string; colors: string[]; walls: string; floors?: Record<string, string>; rules: { type: string; slot: string; mat: string; when?: (p: any) => boolean }[] }
 
 export const PRESETS: Preset[] = [
-  { id: 'design', name: 'As designed', note: 'The palette in the show unit', colors: ['#e9e2d6', '#6b6a26', '#cbbba0', '#2b3550'], walls: 'paint-warm-white', rules: [] },
+  { id: 'design', name: 'As designed', note: 'Matched to the panorama palette', colors: ['#c1b4ab', '#807267', '#b1a297', '#999ea8'], walls: 'paint-warm-white', rules: [] },
   {
     id: 'midnight', name: 'Midnight', note: 'Navy velvet, black marble, smoked oak', colors: ['#1f2b44', '#1c1c1d', '#7d6d60', '#c9a465'], walls: 'paint-greige', floors: { living: 'floor-oak-grey', lobby: 'floor-marble' },
     rules: [
