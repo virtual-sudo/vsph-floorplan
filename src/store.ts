@@ -22,6 +22,9 @@ interface State {
   showPins: boolean;
   showPlan: boolean;
   quality: 'high' | 'balanced';
+  favourites: string[];
+  undoStack: Array<{ overrides: Record<string, Record<string, string>>; wallPaint: string; floorMats: Record<string, string> }>;
+  redoStack: Array<{ overrides: Record<string, Record<string, string>>; wallPaint: string; floorMats: Record<string, string> }>;
   viewReq: { kind: 'home' | 'room' | 'top' | 'item' | 'preset'; id?: string; n: number };
   help: boolean;
   pano: { room: string; cam: number } | null;
@@ -40,6 +43,10 @@ interface State {
   setMaterial: (key: string, slot: string, mat: string) => void;
   resetMaterials: (key?: string) => void;
   requestView: (kind: State['viewReq']['kind'], id?: string) => void;
+  snapshotBeforeStyle: () => void;
+  undo: () => void;
+  redo: () => void;
+  toggleFavourite: (id: string) => void;
 }
 
 let viewN = 0;
@@ -59,6 +66,11 @@ export const useStore = create<State>((set, get) => ({
   showPins: true,
   showPlan: false,
   quality: typeof window !== 'undefined' && (window.innerWidth < 760 || /Mobi|Android/i.test(navigator.userAgent)) ? 'balanced' : 'high',
+  favourites: (() => {
+    try { return JSON.parse(localStorage.getItem('pv-favourites') || '[]'); } catch { return []; }
+  })(),
+  undoStack: [],
+  redoStack: [],
   viewReq: { kind: 'home', n: 0 },
   help: false,
   pano: null,
@@ -97,17 +109,50 @@ export const useStore = create<State>((set, get) => ({
   },
   selectItem: (id) => set(id ? { itemId: id, panel: null, help: false, pano: null } : { itemId: null }),
   setMaterial: (key, slot, mat) => {
+    get().snapshotBeforeStyle();
     const o = { ...get().overrides };
     o[key] = { ...(o[key] || {}), [slot]: mat };
     set({ overrides: o });
   },
   resetMaterials: (key) => {
+    get().snapshotBeforeStyle();
     if (!key) { set({ overrides: {} }); return; }
     const o = { ...get().overrides };
     delete o[key];
     set({ overrides: o });
   },
   requestView: (kind, id) => set({ viewReq: { kind, id, n: ++viewN } })
+  ,
+  snapshotBeforeStyle: () => {
+    const s = get();
+    set({ undoStack: [...s.undoStack.slice(-19), { overrides: s.overrides, wallPaint: s.wallPaint, floorMats: s.floorMats }], redoStack: [] });
+  },
+  undo: () => {
+    const s = get();
+    if (!s.undoStack.length) return;
+    const previous = s.undoStack[s.undoStack.length - 1];
+    set({
+      ...previous,
+      undoStack: s.undoStack.slice(0, -1),
+      redoStack: [...s.redoStack, { overrides: s.overrides, wallPaint: s.wallPaint, floorMats: s.floorMats }]
+    });
+  },
+  redo: () => {
+    const s = get();
+    if (!s.redoStack.length) return;
+    const next = s.redoStack[s.redoStack.length - 1];
+    set({
+      ...next,
+      redoStack: s.redoStack.slice(0, -1),
+      undoStack: [...s.undoStack, { overrides: s.overrides, wallPaint: s.wallPaint, floorMats: s.floorMats }]
+    });
+  },
+  toggleFavourite: (id) => {
+    const s = get();
+    const favourites = s.favourites.includes(id) ? s.favourites.filter((x) => x !== id) : [...s.favourites, id];
+    try { localStorage.setItem('pv-favourites', JSON.stringify(favourites)); } catch {}
+    set({ favourites, toast: s.favourites.includes(id) ? 'Removed from favourites' : 'Saved to favourites' });
+  }
 }));
 
 // test hooks, only with ?debug in the address

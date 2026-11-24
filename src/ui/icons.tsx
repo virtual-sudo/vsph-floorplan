@@ -46,6 +46,13 @@ const P: Record<string, string> = {
   eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   eyeOff: 'M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a14.6 14.6 0 0 1-3.1 3.8M6.2 6.2C3.6 8 2 12 2 12s3.5 7 10 7c1.2 0 2.2-.2 3.2-.6',
   plan: 'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15'
+  , bookmark: 'M6 3h12v18l-6-4-6 4z'
+  , bookmarkFill: 'M6 3h12v18l-6-4-6 4zM6 3h12v18l-6-4-6 4z'
+  , share: 'M12 16V3M7 8l5-5 5 5M5 12v7h14v-7'
+  , undo: 'M9 7 4 12l5 5M4 12h9a7 7 0 0 1 7 7'
+  , redo: 'M15 7l5 5-5 5M20 12h-9a7 7 0 0 0-7 7'
+  , next: 'M8 5l7 7-7 7'
+  , prev: 'M16 5l-7 7 7 7'
 };
 
 export function Icon({ name, size = 18, stroke = 1.6 }: { name: string; size?: number; stroke?: number }) {

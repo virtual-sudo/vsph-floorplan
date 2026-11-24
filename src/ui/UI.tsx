@@ -115,14 +115,22 @@ function NavigationRestore() {
 function RoomsCard() {
   const roomId = useStore((s) => s.roomId);
   const hover = useStore((s) => s.hoverRoom);
+  const favourites = useStore((s) => s.favourites);
+  const toggleFavourite = useStore((s) => s.toggleFavourite);
   const openRoom = useStore((s) => s.openRoom);
   const set = useStore((s) => s.set);
   const [q, setQ] = useState('');
+  const [favouritesOnly, setFavouritesOnly] = useState(false);
   const groups = useMemo(() => {
     const order: Room['zone'][] = ['arrival', 'living', 'private', 'outdoor', 'service', 'circulation'];
     const f = q.trim().toLowerCase();
-    return order.map((z) => ({ z, list: rooms.filter((r) => r.zone === z && (!f || r.name.toLowerCase().includes(f))) })).filter((g) => g.list.length);
-  }, [q]);
+    return order.map((z) => ({
+      z,
+      list: rooms.filter((r) => r.zone === z
+        && (!favouritesOnly || favourites.includes(r.id))
+        && (!f || [r.name, r.info, r.floor, ...r.features].join(' ').toLowerCase().includes(f)))
+    })).filter((g) => g.list.length);
+  }, [q, favouritesOnly, favourites]);
   return (
     <section className="card glass left-card rooms-card">
       <div className="card-head">
@@ -132,7 +140,12 @@ function RoomsCard() {
         </div>
         <button className="icon-btn" onClick={() => set({ panel: null })} aria-label="Close"><Icon name="x" size={16} /></button>
       </div>
-      <input className="search" placeholder="Find a room" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="room-search-row">
+        <input className="search" placeholder="Find a room or feature" value={q} onChange={(e) => setQ(e.target.value)} />
+        <button className={'icon-btn search-filter' + (favouritesOnly ? ' on' : '')} onClick={() => setFavouritesOnly(!favouritesOnly)} aria-label="Show favourites" aria-pressed={favouritesOnly} title="Favourites">
+          <Icon name="bookmark" size={16} />
+        </button>
+      </div>
       <div className="scroll">
         {groups.map((g) => (
           <div key={g.z} className="zone">
@@ -149,6 +162,9 @@ function RoomsCard() {
                   <b>{r.name}</b>
                   <small>{r.area.toFixed(1)} m² <i>/</i> {r.cams.length ? (r.cams.length === 1 ? '1 view' : r.cams.length + ' views') : 'plan only'}</small>
                 </span>
+                <button className={'room-favourite' + (favourites.includes(r.id) ? ' on' : '')} onClick={(e) => { e.stopPropagation(); toggleFavourite(r.id); }} aria-label={favourites.includes(r.id) ? 'Remove from favourites' : 'Add to favourites'}>
+                  <Icon name="bookmark" size={15} />
+                </button>
                 <Icon name="chevR" size={16} />
               </button>
             ))}
@@ -167,6 +183,7 @@ function FinishesCard() {
   const showPins = useStore((s) => s.showPins);
   const showPlan = useStore((s) => s.showPlan);
   const quality = useStore((s) => s.quality);
+  const snapshotBeforeStyle = useStore((s) => s.snapshotBeforeStyle);
   const walls = MATERIALS.filter((m) => m.kind === 'paint');
   return (
     <section className="card glass left-card">
@@ -178,7 +195,7 @@ function FinishesCard() {
         <div className="sub">Palettes</div>
         <div className="presets">
           {PRESETS.map((p) => (
-            <button key={p.id} className="preset" onClick={() => crossfade(() => set({ overrides: presetOverrides(p), wallPaint: p.walls, floorMats: p.floors || {}, finish: 'dressed' }), 700)}>
+            <button key={p.id} className="preset" onClick={() => { snapshotBeforeStyle(); crossfade(() => set({ overrides: presetOverrides(p), wallPaint: p.walls, floorMats: p.floors || {}, finish: 'dressed' }), 700); }}>
               <span className="chips">{p.colors.map((c) => <i key={c} style={{ background: c }} />)}</span>
               <b>{p.name}</b>
               <small>{p.note}</small>
@@ -188,7 +205,7 @@ function FinishesCard() {
         <div className="sub">Wall paint</div>
         <div className="swatches">
           {walls.map((m) => (
-            <button key={m.id} className={'sw' + (wallPaint === m.id ? ' on' : '')} style={{ background: swatchCss(m) }} title={m.name} onClick={() => crossfade(() => set({ wallPaint: m.id }), 450)}><span>{m.name}</span></button>
+            <button key={m.id} className={'sw' + (wallPaint === m.id ? ' on' : '')} style={{ background: swatchCss(m) }} title={m.name} onClick={() => { snapshotBeforeStyle(); crossfade(() => set({ wallPaint: m.id }), 450); }}><span>{m.name}</span></button>
           ))}
         </div>
         <div className="sub">Floors</div>
@@ -199,7 +216,7 @@ function FinishesCard() {
               <div className="fr-head"><b>{z.name}</b><small>{MAT[cur]?.name}</small></div>
               <div className="swatches small">
                 {MATERIALS.filter((m) => m.kind === 'floor' && m.id !== 'floor-dark').map((m) => (
-                  <button key={m.id} className={'sw' + (m.id === cur ? ' on' : '')} style={{ background: swatchCss(m) }} title={m.name} onClick={() => crossfade(() => set({ floorMats: { ...useStore.getState().floorMats, [z.id]: m.id } }), 450)}><span>{m.name}</span></button>
+                  <button key={m.id} className={'sw' + (m.id === cur ? ' on' : '')} style={{ background: swatchCss(m) }} title={m.name} onClick={() => { snapshotBeforeStyle(); crossfade(() => set({ floorMats: { ...useStore.getState().floorMats, [z.id]: m.id } }), 450); }}><span>{m.name}</span></button>
                 ))}
               </div>
             </div>
@@ -288,6 +305,21 @@ function Summary() {
 function RoomCard({ r }: { r: Room }) {
   const set = useStore((s) => s.set);
   const selectRoom = useStore((s) => s.selectRoom);
+  const openRoom = useStore((s) => s.openRoom);
+  const favourites = useStore((s) => s.favourites);
+  const toggleFavourite = useStore((s) => s.toggleFavourite);
+  const i = rooms.findIndex((x) => x.id === r.id);
+  const previous = rooms[(i - 1 + rooms.length) % rooms.length];
+  const next = rooms[(i + 1) % rooms.length];
+  const share = async () => {
+    const url = `${location.origin}${location.pathname}${location.search}#room=${r.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      set({ toast: 'Room link copied' });
+    } catch {
+      set({ toast: 'Could not copy room link' });
+    }
+  };
   return (
     <section className="card glass room-card">
       <div className={'hero' + (r.cams.length ? ' can-enter' : '')} onClick={r.cams.length ? () => set({ pano: { room: r.id, cam: r.cams[0].n } }) : undefined}>
@@ -297,10 +329,20 @@ function RoomCard({ r }: { r: Room }) {
         {r.cams.length > 0 && <button className="hero-btn" onClick={(e) => { e.stopPropagation(); set({ pano: { room: r.id, cam: r.cams[0].n } }); }}><Icon name="pano" size={16} />Enter 360° view</button>}
       </div>
       <div className="room-body">
+        <div className="breadcrumbs"><button onClick={() => selectRoom(null)}>Residence</button><span>/</span><b>{ZONES[r.zone]}</b></div>
         <div className="chip">{ZONES[r.zone]}</div>
         <h2>{r.name}</h2>
         <p className="desc">{r.info}</p>
         <RoomFacts r={r} />
+        <div className="card-actions room-actions">
+          <button className={'btn ghost' + (favourites.includes(r.id) ? ' selected' : '')} onClick={() => toggleFavourite(r.id)}><Icon name="bookmark" size={16} />{favourites.includes(r.id) ? 'Saved' : 'Save'}</button>
+          <button className="btn ghost" onClick={share}><Icon name="share" size={16} />Share</button>
+        </div>
+        <div className="room-tour-nav">
+          <button className="icon-btn" onClick={() => openRoom(previous.id)} aria-label={`Previous room: ${previous.name}`}><Icon name="prev" size={17} /></button>
+          <span>{i + 1} / {rooms.length}</span>
+          <button className="icon-btn" onClick={() => openRoom(next.id)} aria-label={`Next room: ${next.name}`}><Icon name="next" size={17} /></button>
+        </div>
       </div>
     </section>
   );
@@ -429,6 +471,11 @@ function HelpPop() {
             <h3>Make it yours</h3>
             <p>Select furniture to change its materials. Use <b>Bare / Dressed</b> to compare the empty and furnished home, or open <b>Styling</b> for palettes and finishes.</p>
           </article>
+          <article className="help-card">
+            <span className="help-icon"><Icon name="plan" size={19} /></span>
+            <h3>Keyboard shortcuts</h3>
+            <p><b>←/→</b> change room · <b>D</b> dressed/bare · <b>N</b> day/night · <b>W</b> walls · <b>Esc</b> close · <b>?</b> help</p>
+          </article>
         </div>
         <div className="help-foot">
           <span><Icon name="camera" size={16} /> Use <b>Views</b> to jump to a curated camera angle.</span>
@@ -499,14 +546,28 @@ function HoverLabel() {
 function Keys() {
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
+      const typing = (e.target as HTMLElement)?.matches('input, textarea, [contenteditable="true"]');
+      if (typing) return;
       const s = useStore.getState();
+      if (e.key === 'Escape') {
       // Esc leaves the 360 view, also while the camera is still flying in
-      if (s.pano) { s.set({ pano: null }); return; }
-      if (s.itemId) s.selectItem(null);
-      else if (s.roomId) s.selectRoom(null);
-      else if (s.help) s.set({ help: false });
-      else if (s.panel) s.set({ panel: null });
+        if (s.pano) { s.set({ pano: null }); return; }
+        if (s.itemId) s.selectItem(null);
+        else if (s.roomId) s.selectRoom(null);
+        else if (s.help) s.set({ help: false });
+        else if (s.panel) s.set({ panel: null });
+        return;
+      }
+      if (e.key === '?') { s.toggleHelp(); return; }
+      if (e.key.toLowerCase() === 'd') { s.set({ finish: s.finish === 'dressed' ? 'bare' : 'dressed' }); return; }
+      if (e.key.toLowerCase() === 'n') { s.set({ time: s.time === 'day' ? 'night' : 'day' }); return; }
+      if (e.key.toLowerCase() === 'w') { s.set({ walls: s.walls === 'cutaway' ? 'full' : 'cutaway' }); return; }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        if (!rooms.length) return;
+        const i = rooms.findIndex((r) => r.id === s.roomId);
+        const next = e.key === 'ArrowRight' ? (i + 1) % rooms.length : (i <= 0 ? rooms.length - 1 : i - 1);
+        s.openRoom(rooms[next].id);
+      }
     };
     window.addEventListener('keydown', k);
     return () => window.removeEventListener('keydown', k);

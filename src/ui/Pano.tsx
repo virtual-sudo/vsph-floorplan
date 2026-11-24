@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { useStore } from '../store';
-import { roomById, ZONES } from '../data/plan';
+import { rooms, roomById, ZONES } from '../data/plan';
 import { Icon } from './icons';
 import { Seg } from './Seg';
 import { RoomFacts } from './RoomDetails';
@@ -243,6 +243,9 @@ function Zoom({ el }: { el: HTMLElement | null }) {
 
 function PanoScreen({ roomId, camN }: { roomId: string; camN: number }) {
   const r = roomById(roomId)!;
+  const roomIndex = rooms.findIndex((room) => room.id === r.id);
+  const previousRoom = rooms[(roomIndex - 1 + rooms.length) % rooms.length];
+  const nextRoom = rooms[(roomIndex + 1) % rooms.length];
   const finish = useStore((s) => s.finish);
   const reveal = useStore((s) => s.reveal);
   const set = useStore((s) => s.set);
@@ -293,6 +296,10 @@ function PanoScreen({ roomId, camN }: { roomId: string; camN: number }) {
             </div>
           )}
           <RoomFacts r={r} />
+          <div className="pano-room-nav">
+            <button className="btn ghost" onClick={() => set({ pano: { room: previousRoom.id, cam: previousRoom.cams[0]?.n || 1 } })} disabled={!previousRoom.cams.length}><Icon name="prev" size={16} />{previousRoom.name}</button>
+            <button className="btn ghost" onClick={() => set({ pano: { room: nextRoom.id, cam: nextRoom.cams[0]?.n || 1 } })} disabled={!nextRoom.cams.length}>{nextRoom.name}<Icon name="next" size={16} /></button>
+          </div>
           {tour && <a className="btn tour-btn" href={tour} target="_blank" rel="noreferrer"><Icon name="pano" size={16} />Open in the tour</a>}
         </div>
       </aside>
